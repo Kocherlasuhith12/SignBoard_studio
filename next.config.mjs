@@ -1,10 +1,20 @@
 /** @type {import('next').NextConfig} */
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+
 const nextConfig = {
-  reactStrictMode: true,
+  output: "export",
+  basePath: basePath ? basePath : undefined,
+  assetPrefix: basePath ? basePath : undefined,
+  trailingSlash: true,
   images: {
-    domains: ["images.unsplash.com"],
+    unoptimized: true,
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
+    ],
   },
 };
 
 export default nextConfig;
-

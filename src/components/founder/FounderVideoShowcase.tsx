@@ -41,6 +41,8 @@ const CHAPTERS = [
   { id: 6, title: "07 // PARTNERSHIP", tag: "LET'S BUILD MEANINGFUL WORK", accent: "#B5121B" },
 ];
 
+const assetPrefix = process.env.NEXT_PUBLIC_BASE_PATH || "";
+
 export function FounderVideoShowcase({ onStartProject }: { onStartProject?: () => void }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -140,7 +142,7 @@ export function FounderVideoShowcase({ onStartProject }: { onStartProject?: () =
       {/* Hidden Audio Source */}
       <audio
         ref={audioRef}
-        src="/audio/suhith-intro.mp3"
+        src={`${assetPrefix}/audio/suhith-intro.mp3`}
         preload="auto"
       />
 
@@ -173,7 +175,7 @@ export function FounderVideoShowcase({ onStartProject }: { onStartProject?: () =
         <motion.div
           className="absolute inset-0 bg-cover transition-all ease-out"
           style={{
-            backgroundImage: "url(/images/suhith.jpg)",
+            backgroundImage: `url(${assetPrefix}/images/suhith.jpg)`,
             backgroundPosition: "center 18%",
           }}
           animate={
@@ -410,7 +412,7 @@ export function FounderVideoShowcase({ onStartProject }: { onStartProject?: () =
               <div
                 className="absolute inset-0 bg-cover"
                 style={{
-                  backgroundImage: "url(/images/suhith.jpg)",
+                  backgroundImage: `url(${assetPrefix}/images/suhith.jpg)`,
                   backgroundPosition: "center 18%",
                 }}
               />
