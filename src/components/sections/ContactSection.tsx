@@ -103,6 +103,9 @@ export function ContactSection({ onStartProject }: ContactSectionProps) {
     playClick();
 
     const submissionPayload = {
+      _subject: `New Commission Inquiry from ${formData.name.trim()} [Signboard Studio]`,
+      _template: "table",
+      _captcha: "false",
       name: formData.name.trim(),
       email: formData.email.trim(),
       businessName: formData.businessName.trim() || "Not specified",
@@ -127,23 +130,32 @@ export function ContactSection({ onStartProject }: ContactSectionProps) {
         body: JSON.stringify(submissionPayload),
       });
 
-      if (response.ok) {
+      const data = await response.json().catch(() => null);
+
+      // FormSubmit AJAX returns HTTP 200 with { success: "false", message: "..." } if unactivated or invalid.
+      // We strictly confirm data.success is truthy ("true" or true) before displaying success.
+      const isSuccess =
+        response.ok &&
+        data &&
+        (data.success === true || data.success === "true");
+
+      if (isSuccess) {
         setIsSubmitting(false);
         setSubmissionStatus("success");
         playSuccess();
       } else {
-        const errorData = await response.json().catch(() => null);
-        throw new Error(
-          (errorData && errorData.message) ||
-            "The commission dispatch server was unable to process your request."
-        );
+        const rawMessage =
+          data && (data.message || data.error)
+            ? data.message || data.error
+            : "The commission dispatch server was unable to verify your transmission.";
+        throw new Error(rawMessage);
       }
     } catch (err: any) {
       setIsSubmitting(false);
       setSubmissionStatus("error");
       setErrorMessage(
         err.message ||
-          "Transmission could not be verified by the studio server. Please use our direct email fallback below."
+          "Transmission could not be confirmed by the studio server. Please use our direct email fallback below."
       );
     }
   };
@@ -256,18 +268,28 @@ export function ContactSection({ onStartProject }: ContactSectionProps) {
                   />
 
                   {submissionStatus === "error" && (
-                    <div className="p-4 rounded-xl bg-red-950/70 border border-red-500/40 text-red-200 text-sm font-sans space-y-3">
-                      <div className="flex items-start gap-2.5">
+                    <div className="p-4 sm:p-5 rounded-xl bg-red-950/70 border border-red-500/40 text-red-200 text-sm font-sans space-y-3">
+                      <div className="flex items-start gap-3">
                         <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
                         <div>
-                          <div className="font-semibold text-white">Direct Dispatch Notice</div>
-                          <div className="text-xs text-red-200/90 leading-relaxed mt-1">{errorMessage}</div>
+                          <div className="font-semibold text-white">
+                            {errorMessage.toLowerCase().includes("activation") ||
+                            errorMessage.toLowerCase().includes("activate")
+                              ? "Form Activation Required for contact@signboardstudio.com"
+                              : "Direct Dispatch Notice"}
+                          </div>
+                          <div className="text-xs text-red-200/90 leading-relaxed mt-1">
+                            {errorMessage.toLowerCase().includes("activation") ||
+                            errorMessage.toLowerCase().includes("activate")
+                              ? "FormSubmit sent an initial confirmation email to contact@signboardstudio.com. Please open that mailbox and click 'Activate Form' once to authorize web submissions. In the meantime, you can send your inquiry immediately using the direct email button below."
+                              : errorMessage}
+                          </div>
                         </div>
                       </div>
-                      <div className="pt-2 border-t border-red-500/20 flex flex-wrap gap-3">
+                      <div className="pt-2 border-t border-red-500/20 flex flex-wrap items-center gap-3">
                         <a
                           href={generateMailtoLink()}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-xs font-mono uppercase text-white transition-colors"
+                          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-xs font-mono uppercase text-white transition-colors"
                         >
                           <Mail className="w-3.5 h-3.5 text-[#F06A28]" />
                           Open Direct Email Client
@@ -277,7 +299,7 @@ export function ContactSection({ onStartProject }: ContactSectionProps) {
                           onClick={() => setSubmissionStatus("idle")}
                           className="px-3 py-1.5 rounded-lg bg-transparent hover:bg-white/5 text-xs font-mono uppercase text-neutral-400 hover:text-white transition-colors"
                         >
-                          Try Again
+                          Dismiss & Retry
                         </button>
                       </div>
                     </div>
