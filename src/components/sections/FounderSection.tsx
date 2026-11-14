@@ -231,7 +231,7 @@ export function FounderSection({ onDirectConnect }: { onDirectConnect?: () => vo
                         SOLVING COMMERCIAL BOTTLENECK
                       </div>
                       <p className="font-sans text-sm text-neutral-300">
-                        Focusing on measurable business impact: high conversion rates, zero layout shift, lightning-fast global load times, and magnetic brand stickiness.
+                        Focusing on measurable business impact: high conversion fidelity, stable edge delivery, sub-second interaction speed, and magnetic brand stickiness.
                       </p>
                     </div>
                   </div>

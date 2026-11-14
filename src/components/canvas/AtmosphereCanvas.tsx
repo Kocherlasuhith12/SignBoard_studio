@@ -73,6 +73,20 @@ export function AtmosphereCanvas() {
 
     let time = 0;
 
+    const prefersReducedMotion =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (prefersReducedMotion) {
+      // Single quiet rendering pass without continuous animation loop
+      const grad = ctx.createRadialGradient(width / 2, height / 3, 50, width / 2, height / 3, width * 0.5);
+      grad.addColorStop(0, "rgba(181, 18, 27, 0.04)");
+      grad.addColorStop(1, "transparent");
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, width, height);
+      return;
+    }
+
     const render = () => {
       time += 0.015;
       // Smooth mouse interpolation

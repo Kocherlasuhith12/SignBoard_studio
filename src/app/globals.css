@@ -3,14 +3,13 @@
 @tailwind utilities;
 
 :root {
-  --font-serif: 'Playfair Display', 'Cormorant Garamond', Georgia, serif;
+  --font-serif: 'Cormorant Garamond', Georgia, serif;
   --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
-  --font-display: 'Syne', sans-serif;
   
   --brand-red: #B5121B;
   --brand-orange: #F06A28;
-  --brand-black: #0A0A0A;
+  --brand-black: #070707;
 }
 
 /* Smooth Scrolling */

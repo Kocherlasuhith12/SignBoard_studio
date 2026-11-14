@@ -62,7 +62,7 @@ export function ProcessSection() {
       icon: Code,
       duration: "Weeks 05–06",
       description:
-        "Code is sculpted directly into a production-grade Next.js, TypeScript, and Tailwind repository. We implement smooth scroll mechanics, WebGL canvases, micro-interactions, responsive breakpoints, and strict 100/100 Core Web Vitals.",
+        "Code is sculpted directly into a production-grade Next.js, TypeScript, and Tailwind repository. We implement smooth scroll mechanics, WebGL canvases, micro-interactions, responsive breakpoints, and rigorous Core Web Vitals optimization.",
       deliverables: [
         "Semantic, Modular Next.js & React Codebase",
         "Custom GSAP & Framer Motion Interactivity",
@@ -77,10 +77,10 @@ export function ProcessSection() {
       icon: Rocket,
       duration: "Week 07",
       description:
-        "We coordinate flawless global deployment on edge infrastructure (Vercel / Cloudflare), configure production analytics, conduct comprehensive accessibility audits, and ensure your team is fully equipped for ongoing evolution.",
+        "We coordinate flawless global deployment on modern edge infrastructure, configure production analytics, conduct comprehensive accessibility audits, and ensure your team is fully equipped for ongoing evolution.",
       deliverables: [
         "Global Edge CDN Deployment",
-        "Lighthouse & Accessibility (WCAG) Compliance",
+        "WCAG 2.1 AA Accessibility & Performance Audits",
         "Analytics, Event Tracking & Domain Hardening",
         "Post-Launch Support & Evolution Retainer",
       ],

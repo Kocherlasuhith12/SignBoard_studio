@@ -33,12 +33,12 @@ export function HeroSection({ onExploreClick, onStartProjectClick }: HeroSection
       {/* Background Architectural Mesh & Subtle Lighting Spheres */}
       <div className="absolute inset-0 bg-grid-pattern opacity-40 pointer-events-none" />
 
-      {/* Red/Orange Centerstage Light Core */}
+      {/* Red/Orange Centerstage Light Core - Softened for sophisticated editorial contrast */}
       <div
-        className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[550px] sm:w-[1000px] sm:h-[700px] rounded-full blur-[140px] pointer-events-none opacity-45"
+        className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[450px] sm:w-[850px] sm:h-[550px] rounded-full blur-[160px] pointer-events-none opacity-25"
         style={{
           background:
-            "radial-gradient(circle, rgba(181, 18, 27, 0.55) 0%, rgba(240, 106, 40, 0.28) 45%, rgba(10, 10, 10, 0) 75%)",
+            "radial-gradient(circle, rgba(181, 18, 27, 0.45) 0%, rgba(240, 106, 40, 0.2) 45%, rgba(10, 10, 10, 0) 75%)",
         }}
       />
 

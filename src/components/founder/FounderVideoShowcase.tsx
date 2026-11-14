@@ -49,8 +49,11 @@ export function FounderVideoShowcase({ onStartProject }: { onStartProject?: () =
   const [duration, setDuration] = useState(56.4);
   const [isMuted, setIsMuted] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isVideoAvailable, setIsVideoAvailable] = useState(false);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const modalVideoRef = useRef<HTMLVideoElement | null>(null);
   const words: TimedWord[] = wordsData;
   const sentences: TimedSentence[] = sentencesData;
 
@@ -60,6 +63,16 @@ export function FounderVideoShowcase({ onStartProject }: { onStartProject?: () =
 
     const handleTimeUpdate = () => {
       setCurrentTime(audio.currentTime);
+      if (videoRef.current && isVideoAvailable) {
+        if (Math.abs(videoRef.current.currentTime - audio.currentTime) > 0.3) {
+          videoRef.current.currentTime = audio.currentTime;
+        }
+      }
+      if (modalVideoRef.current && isVideoAvailable) {
+        if (Math.abs(modalVideoRef.current.currentTime - audio.currentTime) > 0.3) {
+          modalVideoRef.current.currentTime = audio.currentTime;
+        }
+      }
     };
 
     const handleLoadedMetadata = () => {
@@ -71,6 +84,8 @@ export function FounderVideoShowcase({ onStartProject }: { onStartProject?: () =
     const handleEnded = () => {
       setIsPlaying(false);
       setCurrentTime(0);
+      if (videoRef.current) videoRef.current.currentTime = 0;
+      if (modalVideoRef.current) modalVideoRef.current.currentTime = 0;
     };
 
     audio.addEventListener("timeupdate", handleTimeUpdate);
@@ -82,7 +97,7 @@ export function FounderVideoShowcase({ onStartProject }: { onStartProject?: () =
       audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
       audio.removeEventListener("ended", handleEnded);
     };
-  }, []);
+  }, [isVideoAvailable]);
 
   const togglePlay = () => {
     const audio = audioRef.current;
@@ -90,11 +105,17 @@ export function FounderVideoShowcase({ onStartProject }: { onStartProject?: () =
 
     if (isPlaying) {
       audio.pause();
+      if (videoRef.current) videoRef.current.pause();
+      if (modalVideoRef.current) modalVideoRef.current.pause();
       setIsPlaying(false);
     } else {
       audio
         .play()
-        .then(() => setIsPlaying(true))
+        .then(() => {
+          setIsPlaying(true);
+          if (videoRef.current && isVideoAvailable) videoRef.current.play().catch(() => {});
+          if (modalVideoRef.current && isVideoAvailable) modalVideoRef.current.play().catch(() => {});
+        })
         .catch(() => setIsPlaying(false));
     }
   };
@@ -104,8 +125,15 @@ export function FounderVideoShowcase({ onStartProject }: { onStartProject?: () =
     if (!audio) return;
     audio.currentTime = seconds;
     setCurrentTime(seconds);
+    if (videoRef.current && isVideoAvailable) videoRef.current.currentTime = seconds;
+    if (modalVideoRef.current && isVideoAvailable) modalVideoRef.current.currentTime = seconds;
+
     if (!isPlaying) {
-      audio.play().then(() => setIsPlaying(true)).catch(() => {});
+      audio.play().then(() => {
+        setIsPlaying(true);
+        if (videoRef.current && isVideoAvailable) videoRef.current.play().catch(() => {});
+        if (modalVideoRef.current && isVideoAvailable) modalVideoRef.current.play().catch(() => {});
+      }).catch(() => {});
     }
   };
 
@@ -151,13 +179,17 @@ export function FounderVideoShowcase({ onStartProject }: { onStartProject?: () =
         <div className="flex items-center gap-2">
           <span className="font-mono text-xs uppercase tracking-widest text-[#F06A28] font-semibold flex items-center gap-1.5">
             <Sparkles className="w-3.5 h-3.5" />
-            AI VOICE & KINETIC CAPTION REEL
+            AUDIO ESSAY & KINETIC CAPTION REEL
           </span>
         </div>
 
         <div className="flex items-center gap-3">
           <span className="font-mono text-[10px] text-neutral-400 uppercase tracking-widest">
-            {isPlaying ? "VOICE SYNCHRONIZED" : "CLICK TO PLAY REEL"}
+            {isVideoAvailable
+              ? "AVATAR VIDEO SYNCHRONIZED"
+              : isPlaying
+              ? "VOICE SYNCHRONIZED // FOUNDER PORTRAIT"
+              : "CLICK TO PLAY ESSAY"}
           </span>
           <button
             onClick={() => setIsModalOpen(true)}
@@ -171,7 +203,20 @@ export function FounderVideoShowcase({ onStartProject }: { onStartProject?: () =
 
       {/* Main Video Viewport */}
       <div className="relative w-full h-[360px] sm:h-[420px] rounded-2xl overflow-hidden border border-white/15 bg-black flex flex-col justify-between p-6 group">
-        {/* Cinematic Portrait with Breathing Ken Burns Zoom when Playing */}
+        {/* Optional Stylized AI Avatar Video Track */}
+        <video
+          ref={videoRef}
+          src={`${assetPrefix}/video/suhith-avatar.mp4`}
+          onLoadedData={() => setIsVideoAvailable(true)}
+          onError={() => setIsVideoAvailable(false)}
+          playsInline
+          muted
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
+            isVideoAvailable ? "opacity-100 z-[1]" : "opacity-0 pointer-events-none"
+          }`}
+        />
+
+        {/* Cinematic Portrait Fallback with Breathing Ken Burns Zoom when Playing */}
         <motion.div
           className="absolute inset-0 bg-cover transition-all ease-out"
           style={{
@@ -409,6 +454,17 @@ export function FounderVideoShowcase({ onStartProject }: { onStartProject?: () =
               className="relative w-full max-w-4xl max-h-[70vh] h-[550px] mx-auto rounded-3xl overflow-hidden border border-white/20 bg-black flex flex-col justify-end p-8 shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
+              {/* Optional Synchronized Modal Avatar Video */}
+              <video
+                ref={modalVideoRef}
+                src={`${assetPrefix}/video/suhith-avatar.mp4`}
+                playsInline
+                muted
+                className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
+                  isVideoAvailable ? "opacity-100 z-[1]" : "opacity-0 pointer-events-none"
+                }`}
+              />
+
               <div
                 className="absolute inset-0 bg-cover"
                 style={{
@@ -416,7 +472,7 @@ export function FounderVideoShowcase({ onStartProject }: { onStartProject?: () =
                   backgroundPosition: "center 18%",
                 }}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent z-[2]" />
 
               <div className="relative z-10 max-w-3xl">
                 <div className="font-mono text-xs text-[#F06A28] uppercase tracking-widest font-bold mb-2">

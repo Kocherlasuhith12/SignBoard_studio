@@ -18,22 +18,23 @@ export function ServicesSection({ onServiceInquire }: { onServiceInquire?: (serv
     {
       id: "web-dev",
       number: "01",
-      title: "Web Design & Development",
-      shortTitle: "Web Architecture",
+      title: "Flagship Web Architecture",
+      shortTitle: "Primary // Web Architecture",
+      isPrimary: true,
       icon: Code,
       accent: "#B5121B",
-      tagline: "Ultra-fast, award-caliber digital platforms engineered for conversion.",
+      tagline: "High-performance digital experiences engineered for category leadership.",
       description:
-        "We build websites that look like digital art museums and convert with surgical precision. Utilizing Next.js, WebGL, Tailwind CSS and GSAP, every interface is engineered with zero-compromise performance, kinetic motion, and flawless responsive fidelity.",
+        "Our flagship discipline. We engineer custom digital platforms that combine editorial art direction with production-grade Next.js architecture. Built with TypeScript, Tailwind CSS, and hardware-accelerated motion, every interface is optimized for rapid load, intuitive conversion, and lasting brand resonance.",
       deliverables: [
         "Bespoke Web Design & Architecture",
         "Next.js, TypeScript & React Production",
-        "WebGL & Three.js 3D Interactive Canvases",
-        "GSAP Kinetic Micro-Interactions",
-        "Headless CMS Integration (Sanity, Strapi)",
-        "Search Engine Architecture & 100/100 Core Web Vitals",
+        "WebGL & Three.js Interactive Experiences",
+        "Kinetic Micro-Interactions & Motion",
+        "Headless CMS & Scalable Content Workflows",
+        "Core Web Vitals & Technical SEO Optimization",
       ],
-      techStack: ["Next.js", "TypeScript", "Tailwind CSS", "GSAP", "Three.js", "Vercel"],
+      techStack: ["Next.js", "TypeScript", "Tailwind CSS", "GSAP", "Three.js", "GitHub Pages / Vercel"],
     },
     {
       id: "motion",
@@ -111,12 +112,17 @@ export function ServicesSection({ onServiceInquire }: { onServiceInquire?: (serv
               </span>
             </div>
             <h2 className="font-serif text-3xl sm:text-5xl md:text-6xl font-bold uppercase tracking-tight text-white">
-              DISCIPLINARY CRAFT.
+              CORE DISCIPLINES.
             </h2>
           </div>
-          <p className="font-mono text-neutral-400 text-xs sm:text-sm tracking-widest uppercase max-w-sm">
-            FOUR SPECIALIZED DOMAINS. ONE SEAMLESS FOUNDER-LED CREATIVE STANDARD.
-          </p>
+          <div className="max-w-md space-y-1.5">
+            <span className="font-mono text-[10px] text-[#F06A28] uppercase tracking-widest font-semibold block">
+              PRIMARY ARCHITECTURE + THREE SPECIALIZED CRAFTS
+            </span>
+            <p className="font-sans text-neutral-300 text-xs sm:text-sm leading-relaxed font-light">
+              Engineered for founder-led companies, design-forward brands, and ambitious technology ventures.
+            </p>
+          </div>
         </div>
 
         {/* Service Navigation Tabs */}
@@ -147,13 +153,20 @@ export function ServicesSection({ onServiceInquire }: { onServiceInquire?: (serv
                 )}
 
                 <div className="flex items-center justify-between mb-4">
-                  <span
-                    className={`font-mono text-xs font-bold tracking-widest ${
-                      isActive ? "text-[#F06A28]" : "text-neutral-400"
-                    }`}
-                  >
-                    {service.number}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`font-mono text-xs font-bold tracking-widest ${
+                        isActive ? "text-[#F06A28]" : "text-neutral-400"
+                      }`}
+                    >
+                      {service.number}
+                    </span>
+                    {(service as any).isPrimary && (
+                      <span className="font-mono text-[9px] text-white px-2 py-0.5 rounded-full bg-[#B5121B]/40 border border-[#B5121B]/60 font-semibold uppercase">
+                        PRIMARY
+                      </span>
+                    )}
+                  </div>
                   <div
                     className={`p-2 rounded-lg ${
                       isActive ? "bg-white/10 text-white" : "bg-white/5 text-neutral-400 group-hover:text-white"
@@ -277,8 +290,8 @@ export function ServicesSection({ onServiceInquire }: { onServiceInquire?: (serv
                   <div className="w-full space-y-4">
                     <div className="p-4 rounded-xl bg-black/60 border border-white/10 font-mono text-xs text-neutral-300">
                       <div className="flex items-center justify-between pb-2 mb-3 border-b border-white/10 text-neutral-400 text-[10px]">
-                        <span>app/page.tsx — Next.js 14 WebGL</span>
-                        <span className="text-[#F06A28]">60 FPS</span>
+                        <span>app/page.tsx — Next.js 14 App Router</span>
+                        <span className="text-emerald-400">HARDWARE ACCELERATED</span>
                       </div>
                       <div className="text-emerald-400 font-semibold mb-1">&gt; export default function Experience()</div>
                       <div className="text-neutral-400 pl-4 mb-1">&#123; return &lt;Canvas camera=&#123;&#123; fov: 45 &#125;&#125;&gt;</div>
@@ -289,16 +302,16 @@ export function ServicesSection({ onServiceInquire }: { onServiceInquire?: (serv
 
                     <div className="grid grid-cols-3 gap-3">
                       <div className="p-3 rounded-lg bg-white/[0.03] border border-white/5 text-center">
-                        <div className="font-mono text-lg font-bold text-emerald-400">100</div>
-                        <div className="font-mono text-[9px] text-neutral-400 uppercase">Performance</div>
+                        <div className="font-mono text-xs font-bold text-emerald-400 uppercase">Edge Static</div>
+                        <div className="font-mono text-[9px] text-neutral-400 uppercase mt-0.5">Pre-rendered</div>
                       </div>
                       <div className="p-3 rounded-lg bg-white/[0.03] border border-white/5 text-center">
-                        <div className="font-mono text-lg font-bold text-[#F06A28]">0.4s</div>
-                        <div className="font-mono text-[9px] text-neutral-400 uppercase">First Paint</div>
+                        <div className="font-mono text-xs font-bold text-[#F06A28] uppercase">Zero Lag</div>
+                        <div className="font-mono text-[9px] text-neutral-400 uppercase mt-0.5">Native Cursor</div>
                       </div>
                       <div className="p-3 rounded-lg bg-white/[0.03] border border-white/5 text-center">
-                        <div className="font-mono text-lg font-bold text-white">0.00</div>
-                        <div className="font-mono text-[9px] text-neutral-400 uppercase">Layout Shift</div>
+                        <div className="font-mono text-xs font-bold text-white uppercase">Optimized</div>
+                        <div className="font-mono text-[9px] text-neutral-400 uppercase mt-0.5">Tree-Shaken</div>
                       </div>
                     </div>
                   </div>

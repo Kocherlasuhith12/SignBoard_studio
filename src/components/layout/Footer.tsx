@@ -23,10 +23,24 @@ export function Footer() {
   ];
 
   const socialLinks = [
-    { label: "Instagram", href: "https://instagram.com/signboard_studio", icon: Instagram, handle: "@signboard_studio" },
-    { label: "LinkedIn", href: "https://linkedin.com", icon: Linkedin, handle: "Signboard Studio" },
-    { label: "X / Twitter", href: "https://x.com", icon: Twitter, handle: "@signboardstudio" },
-    { label: "GitHub", href: "https://github.com", icon: Github, handle: "signboard-studio" },
+    {
+      label: "LinkedIn",
+      href: "https://www.linkedin.com/in/kocherlakoteswarasuhithsravanbabu/",
+      icon: Linkedin,
+      handle: "KKS Suhith",
+    },
+    {
+      label: "GitHub",
+      href: "https://github.com/Kocherlasuhith12",
+      icon: Github,
+      handle: "@Kocherlasuhith12",
+    },
+    {
+      label: "X / Twitter",
+      href: "https://x.com/KksSuhith",
+      icon: Twitter,
+      handle: "@KksSuhith",
+    },
   ];
 
   return (
