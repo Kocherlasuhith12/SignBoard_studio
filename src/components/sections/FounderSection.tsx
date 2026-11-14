@@ -6,6 +6,8 @@ import { Terminal, Shield, CheckCircle2, ArrowRight, Sparkles, Layers, Cpu, Awar
 import { useSound } from "@/context/SoundContext";
 import { FounderVideoShowcase } from "@/components/founder/FounderVideoShowcase";
 
+const assetPrefix = process.env.NEXT_PUBLIC_BASE_PATH || "";
+
 export function FounderSection({ onDirectConnect }: { onDirectConnect?: () => void }) {
   const [activeTab, setActiveTab] = useState<"philosophy" | "background" | "stack" | "reel">("philosophy");
   const { playHover, playClick } = useSound();
@@ -61,7 +63,7 @@ export function FounderSection({ onDirectConnect }: { onDirectConnect?: () => vo
                 <div
                   className="absolute inset-0 bg-cover transition-transform duration-700 ease-out group-hover:scale-105"
                   style={{
-                    backgroundImage: `url(/images/suhith.jpg)`,
+                    backgroundImage: `url(${assetPrefix}/images/suhith.jpg)`,
                     backgroundPosition: "center 18%",
                   }}
                 />
