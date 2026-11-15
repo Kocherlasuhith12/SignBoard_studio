@@ -2,12 +2,25 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Compass, Palette, Code, Rocket, CheckCircle2, ChevronRight } from "lucide-react";
+import { Search, Compass, Palette, Code, Rocket, CheckCircle2, ChevronRight, X, Maximize2, ArrowRight } from "lucide-react";
 import { useSound } from "@/context/SoundContext";
 
 export function ProcessSection() {
   const [activeStep, setActiveStep] = useState(0);
-  const { playHover, playClick } = useSound();
+  const [activeModalStep, setActiveModalStep] = useState<any | null>(null);
+  const { playHover, playClick, playReveal } = useSound();
+
+  const handleOpenStepModal = (st: any) => {
+    playReveal();
+    setActiveModalStep(st);
+    document.body.style.overflow = "hidden";
+  };
+
+  const handleCloseStepModal = () => {
+    playClick();
+    setActiveModalStep(null);
+    document.body.style.overflow = "unset";
+  };
 
   const steps = [
     {
@@ -113,50 +126,62 @@ export function ProcessSection() {
         <div className="relative mb-14">
           {/* Connecting Track Line */}
           <div className="hidden lg:block absolute top-1/2 left-0 right-0 h-[2px] bg-white/10 -translate-y-1/2 z-0" />
-          
+
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 relative z-10">
             {steps.map((step, idx) => {
               const Icon = step.icon;
               const isActive = activeStep === idx;
               return (
-                <button
+                <motion.button
                   key={step.number}
                   onClick={() => {
                     playClick();
                     setActiveStep(idx);
                   }}
                   onMouseEnter={playHover}
-                  className={`p-5 rounded-2xl border text-left transition-all duration-300 relative group ${
-                    isActive
-                      ? "bg-[#161616] border-[#F06A28] shadow-[0_0_25px_rgba(240,106,40,0.3)]"
-                      : "bg-[#111111] border-white/10 hover:border-white/20"
-                  }`}
+                  whileHover={{ y: -3 }}
+                  whileTap={{ scale: 0.98 }}
+                  className={`p-5 rounded-2xl border text-left transition-all duration-300 relative group flex flex-col justify-between ${isActive
+                    ? "bg-[#161616] border-[#F06A28] shadow-[0_0_25px_rgba(240,106,40,0.3)]"
+                    : "bg-[#111111] border-white/10 hover:border-white/20"
+                    }`}
                   data-cursor-text="STEP"
                 >
-                  <div className="flex items-center justify-between mb-3">
-                    <span
-                      className={`font-mono text-xs font-bold tracking-widest ${
-                        isActive ? "text-[#F06A28]" : "text-neutral-400"
-                      }`}
-                    >
-                      {step.number}
-                    </span>
-                    <div
-                      className={`p-1.5 rounded-md ${
-                        isActive ? "bg-[#F06A28]/20 text-[#F06A28]" : "bg-white/5 text-neutral-400"
-                      }`}
-                    >
-                      <Icon className="w-3.5 h-3.5" />
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <span
+                        className={`font-mono text-xs font-bold tracking-widest ${isActive ? "text-[#F06A28]" : "text-neutral-400"
+                          }`}
+                      >
+                        {step.number}
+                      </span>
+                      <div
+                        className={`p-1.5 rounded-md ${isActive ? "bg-[#F06A28]/20 text-[#F06A28]" : "bg-white/5 text-neutral-400"
+                          }`}
+                      >
+                        <Icon className="w-3.5 h-3.5" />
+                      </div>
+                    </div>
+
+                    <div className="font-serif text-lg font-bold uppercase tracking-tight text-white mb-0.5">
+                      {step.title}
+                    </div>
+                    <div className="font-mono text-[10px] text-neutral-400 uppercase tracking-wider mb-2">
+                      {step.duration}
                     </div>
                   </div>
 
-                  <div className="font-serif text-lg font-bold uppercase tracking-tight text-white mb-0.5">
-                    {step.title}
+                  <div
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleOpenStepModal(step);
+                    }}
+                    className="pt-2 border-t border-white/5 flex items-center justify-between font-mono text-[10px] text-neutral-400 group-hover:text-[#F06A28] transition-colors w-full"
+                  >
+                    <span>EXPAND</span>
+                    <span className="text-xs">↗</span>
                   </div>
-                  <div className="font-mono text-[10px] text-neutral-400 uppercase tracking-wider">
-                    {step.duration}
-                  </div>
-                </button>
+                </motion.button>
               );
             })}
           </div>

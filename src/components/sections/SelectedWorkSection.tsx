@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowUpRight, X, Code, CheckCircle, ShieldAlert, Cpu, Layers, Sparkles } from "lucide-react";
 import { useSound } from "@/context/SoundContext";
@@ -219,8 +219,20 @@ export function SelectedWorkSection() {
   const closeProjectModal = () => {
     playClick();
     setActiveModalProject(null);
-    document.body.style.overflow = "unset";
+    if (typeof document !== "undefined") {
+      document.body.style.overflow = "unset";
+    }
   };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && activeModalProject) {
+        closeProjectModal();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [activeModalProject]);
 
   // Bespoke Project Visual Artwork Component
   const ProjectVisual = ({ id }: { id: string }) => {
@@ -474,9 +486,11 @@ export function SelectedWorkSection() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.4, delay: index * 0.05 }}
+                whileHover={{ y: -6 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => openProjectModal(project)}
                 onMouseEnter={playHover}
-                className="group relative flex flex-col rounded-3xl bg-[#0F0F0F] border border-white/10 hover:border-[#F06A28]/50 overflow-hidden cursor-pointer transition-all duration-500 hover:-translate-y-1.5 hover:shadow-2xl"
+                className="group relative flex flex-col rounded-3xl bg-[#0F0F0F] border border-white/10 hover:border-[#F06A28]/50 overflow-hidden cursor-pointer transition-all duration-500 hover:shadow-[0_10px_30px_rgba(240,106,40,0.15)]"
                 data-cursor-text="VIEW"
               >
                 {/* Unified 16:10 Thumbnail Container */}
@@ -546,10 +560,10 @@ export function SelectedWorkSection() {
             onClick={closeProjectModal}
           >
             <motion.div
-              initial={{ opacity: 0, scale: 0.96 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.96 }}
-              transition={{ duration: 0.3 }}
+              initial={{ opacity: 0, scale: 0.88, y: 25 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ type: "spring", damping: 25, stiffness: 350 }}
               onClick={(e) => e.stopPropagation()}
               className="relative w-full max-w-4xl bg-[#111111] border border-white/15 rounded-3xl p-6 sm:p-10 my-8 shadow-2xl max-h-[90vh] overflow-y-auto"
             >
@@ -561,7 +575,7 @@ export function SelectedWorkSection() {
                       {activeModalProject.conceptBadge}
                     </span>
                     <span className="font-mono text-xs text-neutral-400">
-                      {activeModalProject.year} // {activeModalProject.categoryLabel}
+                      {activeModalProject.year} &mdash; {activeModalProject.categoryLabel}
                     </span>
                   </div>
 

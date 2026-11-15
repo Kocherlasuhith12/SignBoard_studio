@@ -89,14 +89,22 @@ export function FounderSection({ onDirectConnect }: { onDirectConnect?: () => vo
 
               {/* Key Credentials Badges */}
               <div className="grid grid-cols-2 gap-3 font-mono text-xs">
-                <div className="p-3 rounded-xl bg-white/[0.03] border border-white/5">
+                <motion.div
+                  whileHover={{ y: -2 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="p-3 rounded-xl bg-white/[0.03] border border-white/5 hover:border-white/15 transition-all"
+                >
                   <div className="text-neutral-400 text-[10px] uppercase">PRACTICE</div>
                   <div className="text-white font-semibold mt-0.5">End-to-End Craft</div>
-                </div>
-                <div className="p-3 rounded-xl bg-white/[0.03] border border-white/5">
+                </motion.div>
+                <motion.div
+                  whileHover={{ y: -2 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="p-3 rounded-xl bg-white/[0.03] border border-white/5 hover:border-white/15 transition-all"
+                >
                   <div className="text-neutral-400 text-[10px] uppercase">EXPERTISE</div>
                   <div className="text-white font-semibold mt-0.5">Next.js & Motion</div>
-                </div>
+                </motion.div>
               </div>
             </div>
 
@@ -248,9 +256,11 @@ export function FounderSection({ onDirectConnect }: { onDirectConnect?: () => vo
                 >
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {skills.map((skill) => (
-                      <div
+                      <motion.div
                         key={skill.name}
-                        className="p-4 rounded-xl bg-white/[0.03] border border-white/5 flex flex-col justify-between"
+                        whileHover={{ y: -3, borderColor: "rgba(240,106,40,0.4)" }}
+                        whileTap={{ scale: 0.98 }}
+                        className="p-4 rounded-xl bg-white/[0.03] border border-white/5 flex flex-col justify-between transition-colors cursor-pointer"
                       >
                         <div className="flex items-center justify-between mb-2">
                           <span className="font-mono text-[10px] text-neutral-400 uppercase tracking-widest">
@@ -261,7 +271,7 @@ export function FounderSection({ onDirectConnect }: { onDirectConnect?: () => vo
                           </span>
                         </div>
                         <div className="font-sans text-sm font-semibold text-white">{skill.name}</div>
-                      </div>
+                      </motion.div>
                     ))}
                   </div>
                 </motion.div>

@@ -2,12 +2,25 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Code, Video, Camera, Sparkles, Check, ArrowRight, Terminal, Sliders, Play, Layers } from "lucide-react";
+import { Code, Video, Camera, Sparkles, Check, ArrowRight, Terminal, Sliders, Play, Layers, Maximize2, X, ShieldCheck } from "lucide-react";
 import { useSound } from "@/context/SoundContext";
 
 export function ServicesSection({ onServiceInquire }: { onServiceInquire?: (serviceName: string) => void }) {
   const [activeTab, setActiveTab] = useState(0);
-  const { playHover, playClick } = useSound();
+  const [activeModalService, setActiveModalService] = useState<any | null>(null);
+  const { playHover, playClick, playReveal } = useSound();
+
+  const handleOpenServiceModal = (serv: any) => {
+    playReveal();
+    setActiveModalService(serv);
+    document.body.style.overflow = "hidden";
+  };
+
+  const handleCloseServiceModal = () => {
+    playClick();
+    setActiveModalService(null);
+    document.body.style.overflow = "unset";
+  };
 
   // Interactive state for playground demos
   const [aspectRatio, setAspectRatio] = useState<"16:9" | "9:16" | "1:1">("16:9");
@@ -131,18 +144,19 @@ export function ServicesSection({ onServiceInquire }: { onServiceInquire?: (serv
             const Icon = service.icon;
             const isActive = activeTab === index;
             return (
-              <button
+              <motion.button
                 key={service.id}
                 onClick={() => {
                   playClick();
                   setActiveTab(index);
                 }}
                 onMouseEnter={playHover}
-                className={`p-5 sm:p-6 rounded-2xl border text-left transition-all duration-300 relative overflow-hidden group ${
-                  isActive
-                    ? "bg-[#161616] border-white/20 shadow-[0_0_30px_rgba(181,18,27,0.25)]"
-                    : "bg-[#111111]/70 border-white/5 hover:border-white/15 hover:bg-[#141414]"
-                }`}
+                whileHover={{ y: -3 }}
+                whileTap={{ scale: 0.98 }}
+                className={`p-5 sm:p-6 rounded-2xl border text-left transition-all duration-300 relative overflow-hidden group flex flex-col justify-between ${isActive
+                  ? "bg-[#161616] border-white/20 shadow-[0_0_30px_rgba(181,18,27,0.25)]"
+                  : "bg-[#111111]/70 border-white/5 hover:border-white/15 hover:bg-[#141414]"
+                  }`}
                 data-cursor-text="SELECT"
               >
                 {isActive && (
@@ -152,37 +166,48 @@ export function ServicesSection({ onServiceInquire }: { onServiceInquire?: (serv
                   />
                 )}
 
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`font-mono text-xs font-bold tracking-widest ${
-                        isActive ? "text-[#F06A28]" : "text-neutral-400"
-                      }`}
-                    >
-                      {service.number}
-                    </span>
-                    {(service as any).isPrimary && (
-                      <span className="font-mono text-[9px] text-white px-2 py-0.5 rounded-full bg-[#B5121B]/40 border border-[#B5121B]/60 font-semibold uppercase">
-                        PRIMARY
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`font-mono text-xs font-bold tracking-widest ${isActive ? "text-[#F06A28]" : "text-neutral-400"
+                          }`}
+                      >
+                        {service.number}
                       </span>
-                    )}
+                      {(service as any).isPrimary && (
+                        <span className="font-mono text-[9px] text-white px-2 py-0.5 rounded-full bg-[#B5121B]/40 border border-[#B5121B]/60 font-semibold uppercase">
+                          PRIMARY
+                        </span>
+                      )}
+                    </div>
+                    <div
+                      className={`p-2 rounded-lg ${isActive ? "bg-white/10 text-white" : "bg-white/5 text-neutral-400 group-hover:text-white"
+                        } transition-colors`}
+                    >
+                      <Icon className="w-4 h-4" />
+                    </div>
                   </div>
-                  <div
-                    className={`p-2 rounded-lg ${
-                      isActive ? "bg-white/10 text-white" : "bg-white/5 text-neutral-400 group-hover:text-white"
-                    } transition-colors`}
-                  >
-                    <Icon className="w-4 h-4" />
+
+                  <div className="font-serif text-lg sm:text-xl font-bold uppercase tracking-tight text-white mb-1">
+                    {service.shortTitle}
+                  </div>
+                  <div className="font-mono text-[10px] text-neutral-400 tracking-wider uppercase mb-3">
+                    {service.techStack[0]} / {service.techStack[1]}
                   </div>
                 </div>
 
-                <div className="font-serif text-lg sm:text-xl font-bold uppercase tracking-tight text-white mb-1">
-                  {service.shortTitle}
+                <div
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleOpenServiceModal(service);
+                  }}
+                  className="pt-2 border-t border-white/5 flex items-center justify-between font-mono text-[10px] text-neutral-400 group-hover:text-[#F06A28] transition-colors w-full"
+                >
+                  <span>EXPAND DOSSIER</span>
+                  <span className="text-xs">↗</span>
                 </div>
-                <div className="font-mono text-[10px] text-neutral-400 tracking-wider uppercase">
-                  {service.techStack[0]} / {service.techStack[1]}
-                </div>
-              </button>
+              </motion.button>
             );
           })}
         </div>
@@ -251,23 +276,34 @@ export function ServicesSection({ onServiceInquire }: { onServiceInquire?: (serv
                     ))}
                   </div>
 
-                  <button
-                    onClick={() => {
-                      playClick();
-                      if (onServiceInquire) {
-                        onServiceInquire(currentService.title);
-                      } else {
-                        const contact = document.querySelector("#contact");
-                        contact?.scrollIntoView({ behavior: "smooth" });
-                      }
-                    }}
-                    onMouseEnter={playHover}
-                    className="group px-6 py-3 rounded-full bg-gradient-to-r from-[#B5121B] to-[#F06A28] text-white font-mono text-xs tracking-widest uppercase font-semibold flex items-center gap-2 hover:scale-105 transition-all shadow-[0_0_20px_rgba(181,18,27,0.3)]"
-                    data-cursor-text="INQUIRE"
-                  >
-                    <span>COMMISSION THIS SERVICE</span>
-                    <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
-                  </button>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <button
+                      onClick={() => handleOpenServiceModal(currentService)}
+                      onMouseEnter={playHover}
+                      className="px-5 py-3 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 font-mono text-xs uppercase tracking-wider text-neutral-300 hover:text-white transition-colors flex items-center gap-1.5"
+                    >
+                      <Maximize2 className="w-3.5 h-3.5 text-[#F06A28]" />
+                      <span>EXPAND DOSSIER</span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        playClick();
+                        if (onServiceInquire) {
+                          onServiceInquire(currentService.title);
+                        } else {
+                          const contact = document.querySelector("#contact");
+                          contact?.scrollIntoView({ behavior: "smooth" });
+                        }
+                      }}
+                      onMouseEnter={playHover}
+                      className="group px-6 py-3 rounded-full bg-gradient-to-r from-[#B5121B] to-[#F06A28] text-white font-mono text-xs tracking-widest uppercase font-semibold flex items-center gap-2 hover:scale-105 transition-all shadow-[0_0_20px_rgba(181,18,27,0.3)]"
+                      data-cursor-text="INQUIRE"
+                    >
+                      <span>COMMISSION SERVICE</span>
+                      <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -323,13 +359,12 @@ export function ServicesSection({ onServiceInquire }: { onServiceInquire?: (serv
                     {/* Visual Frame Simulator */}
                     <div className="flex justify-center">
                       <div
-                        className={`transition-all duration-500 rounded-xl bg-gradient-to-br from-[#B5121B]/40 to-[#F06A28]/20 border border-white/20 flex flex-col items-center justify-center p-4 relative overflow-hidden ${
-                          aspectRatio === "16:9"
-                            ? "w-full h-44"
-                            : aspectRatio === "9:16"
+                        className={`transition-all duration-500 rounded-xl bg-gradient-to-br from-[#B5121B]/40 to-[#F06A28]/20 border border-white/20 flex flex-col items-center justify-center p-4 relative overflow-hidden ${aspectRatio === "16:9"
+                          ? "w-full h-44"
+                          : aspectRatio === "9:16"
                             ? "w-36 h-56"
                             : "w-44 h-44"
-                        }`}
+                          }`}
                       >
                         <Play className="w-10 h-10 text-white/90 animate-pulse mb-2" />
                         <span className="font-mono text-xs uppercase text-white font-semibold tracking-widest">
@@ -354,11 +389,10 @@ export function ServicesSection({ onServiceInquire }: { onServiceInquire?: (serv
                             playClick();
                             setAspectRatio(ratio);
                           }}
-                          className={`px-3 py-1.5 rounded-lg font-mono text-xs uppercase tracking-wider transition-all ${
-                            aspectRatio === ratio
-                              ? "bg-[#F06A28] text-white font-bold"
-                              : "bg-white/5 text-neutral-400 hover:text-white"
-                          }`}
+                          className={`px-3 py-1.5 rounded-lg font-mono text-xs uppercase tracking-wider transition-all ${aspectRatio === ratio
+                            ? "bg-[#F06A28] text-white font-bold"
+                            : "bg-white/5 text-neutral-400 hover:text-white"
+                            }`}
                         >
                           {ratio}
                         </button>
@@ -371,13 +405,12 @@ export function ServicesSection({ onServiceInquire }: { onServiceInquire?: (serv
                 {activeTab === 2 && (
                   <div className="w-full space-y-6">
                     <div
-                      className={`w-full h-48 rounded-xl border border-white/20 flex flex-col items-center justify-center relative overflow-hidden transition-all duration-700 ${
-                        colorGrade === "cinematic"
-                          ? "bg-gradient-to-tr from-[#1a0808] via-[#2d120a] to-[#421717]"
-                          : colorGrade === "editorial"
+                      className={`w-full h-48 rounded-xl border border-white/20 flex flex-col items-center justify-center relative overflow-hidden transition-all duration-700 ${colorGrade === "cinematic"
+                        ? "bg-gradient-to-tr from-[#1a0808] via-[#2d120a] to-[#421717]"
+                        : colorGrade === "editorial"
                           ? "bg-gradient-to-tr from-[#0a0a0a] via-[#1c1c1c] to-[#3a3a3a]"
                           : "bg-gradient-to-tr from-[#000000] via-[#0f0f0f] to-[#1e0a0a]"
-                      }`}
+                        }`}
                     >
                       <Camera className="w-10 h-10 text-white/80 mb-2" />
                       <span className="font-serif text-lg font-bold uppercase tracking-wider text-white">
@@ -396,11 +429,10 @@ export function ServicesSection({ onServiceInquire }: { onServiceInquire?: (serv
                             playClick();
                             setColorGrade(grade);
                           }}
-                          className={`px-3 py-1.5 rounded-lg font-mono text-xs uppercase tracking-wider transition-all ${
-                            colorGrade === grade
-                              ? "bg-[#B5121B] text-white font-bold"
-                              : "bg-white/5 text-neutral-400 hover:text-white"
-                          }`}
+                          className={`px-3 py-1.5 rounded-lg font-mono text-xs uppercase tracking-wider transition-all ${colorGrade === grade
+                            ? "bg-[#B5121B] text-white font-bold"
+                            : "bg-white/5 text-neutral-400 hover:text-white"
+                            }`}
                         >
                           {grade}
                         </button>
@@ -430,19 +462,17 @@ export function ServicesSection({ onServiceInquire }: { onServiceInquire?: (serv
                               playClick();
                               setAiNodeActive(node.id);
                             }}
-                            className={`p-3 rounded-lg border transition-all cursor-pointer flex items-center justify-between ${
-                              aiNodeActive === node.id
-                                ? "bg-[#B5121B]/20 border-[#F06A28] text-white"
-                                : "bg-white/[0.02] border-white/5 text-neutral-400 hover:border-white/20"
-                            }`}
+                            className={`p-3 rounded-lg border transition-all cursor-pointer flex items-center justify-between ${aiNodeActive === node.id
+                              ? "bg-[#B5121B]/20 border-[#F06A28] text-white"
+                              : "bg-white/[0.02] border-white/5 text-neutral-400 hover:border-white/20"
+                              }`}
                           >
                             <span className="font-mono text-xs font-medium">{node.title}</span>
                             <span
-                              className={`font-mono text-[10px] px-2 py-0.5 rounded ${
-                                aiNodeActive === node.id
-                                  ? "bg-[#F06A28] text-white"
-                                  : "bg-white/5 text-neutral-400"
-                              }`}
+                              className={`font-mono text-[10px] px-2 py-0.5 rounded ${aiNodeActive === node.id
+                                ? "bg-[#F06A28] text-white"
+                                : "bg-white/5 text-neutral-400"
+                                }`}
                             >
                               {node.status}
                             </span>
@@ -466,7 +496,134 @@ export function ServicesSection({ onServiceInquire }: { onServiceInquire?: (serv
           </motion.div>
         </AnimatePresence>
       </div>
-    </section>
+
+      {/* Service Detailed Dossier Popup Modal */}
+      <AnimatePresence>
+        {activeModalService && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/85 backdrop-blur-md overflow-y-auto"
+            onClick={handleCloseServiceModal}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.88, y: 25 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ type: "spring", damping: 25, stiffness: 350 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative w-full max-w-3xl bg-[#111111] border border-white/15 rounded-3xl p-6 sm:p-10 my-8 shadow-2xl text-white max-h-[90vh] overflow-y-auto"
+            >
+              {/* Modal Top Bar */}
+              <div className="flex items-start justify-between pb-6 border-b border-white/10 mb-6">
+                <div>
+                  <div className="flex items-center gap-2 mb-2 font-mono text-xs">
+                    <span className="px-2.5 py-0.5 rounded-full bg-[#B5121B]/20 border border-[#B5121B]/40 text-[#F06A28] font-semibold uppercase">
+                      DISCIPLINE {activeModalService.number}
+                    </span>
+                    {activeModalService.isPrimary && (
+                      <span className="px-2 py-0.5 rounded-full bg-white/10 border border-white/20 text-white font-semibold uppercase">
+                        PRIMARY FLAGSHIP
+                      </span>
+                    )}
+                    <span className="text-neutral-400">STUDIO CAPABILITY DOSSIER</span>
+                  </div>
+
+                  <h2 className="font-serif text-3xl sm:text-4xl font-bold uppercase tracking-tight text-white">
+                    {activeModalService.title}
+                  </h2>
+                </div>
+
+                <button
+                  onClick={handleCloseServiceModal}
+                  className="p-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-neutral-300 hover:text-white transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Tagline Callout */}
+              <div className="p-5 rounded-2xl bg-gradient-to-r from-white/[0.04] to-white/[0.01] border border-white/10 mb-8 font-mono text-sm sm:text-base text-[#F06A28] leading-relaxed">
+                {activeModalService.tagline}
+              </div>
+
+              {/* Comprehensive Service Breakdown */}
+              <div className="space-y-6 mb-8 text-neutral-300 text-sm sm:text-base font-sans">
+                <div>
+                  <h3 className="font-mono text-xs uppercase tracking-[0.25em] text-[#F06A28] mb-2 font-semibold">
+                    01 // EXECUTIVE DISCIPLINE OVERVIEW
+                  </h3>
+                  <p className="leading-relaxed font-light text-neutral-300">
+                    {activeModalService.description}
+                  </p>
+                </div>
+
+                <div>
+                  <h3 className="font-mono text-xs uppercase tracking-[0.25em] text-[#B5121B] mb-3 font-semibold">
+                    02 // VERIFIED PRODUCTION DELIVERABLES
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {activeModalService.deliverables.map((item: string) => (
+                      <div key={item} className="flex items-start gap-2.5 p-3 rounded-xl bg-white/[0.03] border border-white/5 text-xs sm:text-sm text-neutral-200">
+                        <Check className="w-4 h-4 text-[#F06A28] shrink-0 mt-0.5" />
+                        <span>{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="font-mono text-xs uppercase tracking-[0.25em] text-white mb-3 font-semibold">
+                    03 // PRODUCTION TOOLS & ENGINE
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {activeModalService.techStack.map((tech: string) => (
+                      <span
+                        key={tech}
+                        className="font-mono text-xs px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-neutral-200"
+                      >
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Modal Footer CTA */}
+              <div className="pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <span className="font-mono text-xs text-neutral-400">
+                  Ready to commission this discipline?
+                </span>
+
+                <div className="flex items-center gap-3 w-full sm:w-auto">
+                  <button
+                    onClick={handleCloseServiceModal}
+                    className="flex-1 sm:flex-initial px-5 py-2.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 font-mono text-xs uppercase tracking-wider text-neutral-300 transition-colors"
+                  >
+                    Close Dossier
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      handleCloseServiceModal();
+                      if (onServiceInquire) {
+                        onServiceInquire(activeModalService.title);
+                      } else {
+                        const contact = document.querySelector("#contact");
+                        contact?.scrollIntoView({ behavior: "smooth" });
+                      }
+                    }}
+                    className="flex-1 sm:flex-initial px-6 py-2.5 rounded-full bg-gradient-to-r from-[#B5121B] to-[#F06A28] text-white font-mono text-xs uppercase tracking-widest font-semibold flex items-center justify-center gap-2 hover:scale-105 transition-all shadow-md"
+                  >
+                    <span>Inquire Now</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+    </div>
+    </section >
   );
 }
 

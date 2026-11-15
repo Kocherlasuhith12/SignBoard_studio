@@ -519,7 +519,7 @@ export function FounderVideoShowcase({ onStartProject }: { onStartProject?: () =
                     }}
                     className="px-6 py-3 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 font-mono text-xs uppercase tracking-widest text-white transition-colors flex items-center gap-2"
                   >
-                    <span>LET'S BUILD TOGETHER</span>
+                    <span>LET&apos;S BUILD TOGETHER</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
