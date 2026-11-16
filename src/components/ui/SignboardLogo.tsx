@@ -1,7 +1,8 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
+import { useSound } from "@/context/SoundContext";
 
 interface SignboardLogoProps {
   className?: string;
@@ -9,29 +10,64 @@ interface SignboardLogoProps {
   size?: "sm" | "md" | "lg" | "xl" | "hero";
   animated?: boolean;
   glow?: boolean;
+  interactiveSound?: boolean;
 }
 
 export function SignboardMonogram({
   className = "w-12 h-12",
   glow = false,
   animated = false,
+  interactiveSound = true,
 }: {
   className?: string;
   glow?: boolean;
   animated?: boolean;
+  interactiveSound?: boolean;
 }) {
+  const { playLogoSound } = useSound();
+  const [isSwinging, setIsSwinging] = useState(false);
+
+  const triggerLogoTouch = (e?: React.SyntheticEvent) => {
+    if (interactiveSound) {
+      playLogoSound();
+      setIsSwinging(true);
+      setTimeout(() => setIsSwinging(false), 900);
+    }
+  };
+
   return (
     <motion.div
-      className={`relative inline-flex items-center justify-center group ${className}`}
+      onClick={triggerLogoTouch}
+      onTouchStart={triggerLogoTouch}
+      onMouseEnter={() => {
+        if (!isSwinging) {
+          triggerLogoTouch();
+        }
+      }}
+      className={`relative inline-flex items-center justify-center group cursor-pointer select-none ${className}`}
+      animate={
+        isSwinging
+          ? {
+              rotate: [0, -9, 8, -5, 3, -1, 0],
+              scale: [1, 1.07, 0.98, 1],
+              transition: { duration: 0.9, ease: [0.16, 1, 0.3, 1] },
+            }
+          : undefined
+      }
       whileHover={{
-        rotate: [0, -3, 3, -1.5, 0],
+        rotate: [0, -4, 4, -2, 0],
         transition: { duration: 0.8, ease: "easeInOut" },
       }}
+      whileTap={{ scale: 0.94 }}
       style={{ transformOrigin: "top center" }}
+      title="Touch Signboard Emblem for acoustic chime"
+      data-cursor-text="RING"
     >
       {/* Ambient Red/Orange Volumetric Glow */}
-      {glow && (
-        <div
+      {(glow || isSwinging) && (
+        <motion.div
+          animate={isSwinging ? { scale: [1, 1.25, 1], opacity: [0.7, 1, 0.7] } : undefined}
+          transition={{ duration: 0.9 }}
           className="absolute inset-0 rounded-xl blur-xl pointer-events-none opacity-70 group-hover:opacity-100 transition-opacity duration-500"
           style={{
             background:
@@ -167,7 +203,9 @@ export function SignboardLogo({
   size = "md",
   animated = false,
   glow = false,
+  interactiveSound = true,
 }: SignboardLogoProps) {
+  const { playLogoSound } = useSound();
   const sizeMap = {
     sm: {
       monogram: "w-8 h-8",
@@ -199,19 +237,42 @@ export function SignboardLogo({
   const currentSize = sizeMap[size];
 
   if (variant === "monogram") {
-    return <SignboardMonogram className={`${currentSize.monogram} ${className}`} glow={glow} animated={animated} />;
+    return (
+      <SignboardMonogram
+        className={`${currentSize.monogram} ${className}`}
+        glow={glow}
+        animated={animated}
+        interactiveSound={interactiveSound}
+      />
+    );
   }
 
+  const handleContainerTouch = () => {
+    if (interactiveSound) {
+      playLogoSound();
+    }
+  };
+
   return (
-    <div className={`inline-flex items-center gap-3.5 select-none ${className}`}>
+    <div
+      onClick={handleContainerTouch}
+      className={`inline-flex items-center gap-3.5 select-none cursor-pointer group ${className}`}
+      title="Touch Signboard Emblem for acoustic chime"
+      data-cursor-text="RING"
+    >
       {variant !== "wordmark" && (
-        <SignboardMonogram className={currentSize.monogram} glow={glow} animated={animated} />
+        <SignboardMonogram
+          className={currentSize.monogram}
+          glow={glow}
+          animated={animated}
+          interactiveSound={interactiveSound}
+        />
       )}
 
       <div className="flex flex-col leading-none">
         <div className="flex items-center gap-2">
           {/* Serif Typographic Wordmark Matching Brand Image 2 */}
-          <span className={`font-serif font-black text-white ${currentSize.text} uppercase tracking-[0.28em]`}>
+          <span className={`font-serif font-black text-white ${currentSize.text} uppercase tracking-[0.28em] group-hover:text-[#F06A28] transition-colors duration-300`}>
             SIGNBOARD
           </span>
         </div>

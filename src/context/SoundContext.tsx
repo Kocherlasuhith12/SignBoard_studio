@@ -5,30 +5,37 @@ import React, { createContext, useContext, useEffect, useRef, useState, useCallb
 interface SoundContextType {
   isMuted: boolean;
   toggleSound: () => void;
+  unmute: () => void;
   playHover: () => void;
   playClick: () => void;
   playReveal: () => void;
   playSuccess: () => void;
+  playLogoSound: () => void;
 }
 
 const SoundContext = createContext<SoundContextType>({
-  isMuted: true,
+  isMuted: false,
   toggleSound: () => {},
+  unmute: () => {},
   playHover: () => {},
   playClick: () => {},
   playReveal: () => {},
   playSuccess: () => {},
+  playLogoSound: () => {},
 });
 
 export function SoundProvider({ children }: { children: React.ReactNode }) {
-  const [isMuted, setIsMuted] = useState(true);
+  // Start with audio active (browsers suspend until first interaction, which getAudioContext handles)
+  const [isMuted, setIsMuted] = useState(false);
   const audioCtxRef = useRef<AudioContext | null>(null);
 
-  // Initialize Audio Context on demand
+  // Initialize Audio Context on demand with resume handling
   const getAudioContext = useCallback(() => {
     if (typeof window === "undefined") return null;
     if (!audioCtxRef.current) {
-      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      const AudioCtx =
+        window.AudioContext ||
+        (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       if (AudioCtx) {
         audioCtxRef.current = new AudioCtx();
       }
@@ -39,12 +46,16 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
     return audioCtxRef.current;
   }, []);
 
+  const unmute = useCallback(() => {
+    setIsMuted(false);
+    getAudioContext();
+  }, [getAudioContext]);
+
   const toggleSound = () => {
     const nextMuted = !isMuted;
     setIsMuted(nextMuted);
     if (!nextMuted) {
       getAudioContext();
-      // Play a confirmation tone
       setTimeout(() => playSuccessTone(), 50);
     }
   };
@@ -150,15 +161,69 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
     playSuccessTone();
   }, [isMuted, playSuccessTone]);
 
+  // Signature Signboard Studio Emblem Resonance Audio
+  const playLogoSound = useCallback(() => {
+    try {
+      const ctx = getAudioContext();
+      if (!ctx) return;
+
+      const now = ctx.currentTime;
+
+      // 1. Tactile Signboard Mounting Strike (warm physical sub-bass drop)
+      const strikeOsc = ctx.createOscillator();
+      const strikeGain = ctx.createGain();
+      strikeOsc.type = "sine";
+      strikeOsc.frequency.setValueAtTime(160, now);
+      strikeOsc.frequency.exponentialRampToValueAtTime(52, now + 0.14);
+
+      strikeGain.gain.setValueAtTime(0.09, now);
+      strikeGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
+
+      strikeOsc.connect(strikeGain);
+      strikeGain.connect(ctx.destination);
+      strikeOsc.start(now);
+      strikeOsc.stop(now + 0.16);
+
+      // 2. Harmonic Brand Chime Arpeggio: [A3: 220Hz, E4: 330Hz, A4: 440Hz, C#5: 554Hz, E5: 660Hz, A5: 880Hz]
+      const notes = [220, 330, 440, 554, 660, 880];
+      notes.forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = idx % 2 === 0 ? "sine" : "triangle";
+        const startTime = now + idx * 0.022;
+        const duration = 0.55 + idx * 0.05;
+
+        osc.frequency.setValueAtTime(freq, startTime);
+        osc.frequency.exponentialRampToValueAtTime(freq * 1.008, startTime + duration);
+
+        const volume = (0.045 / (idx * 0.6 + 1));
+        gain.gain.setValueAtTime(0.0001, startTime);
+        gain.gain.exponentialRampToValueAtTime(volume, startTime + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.00001, startTime + duration);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(startTime);
+        osc.stop(startTime + duration);
+      });
+    } catch {
+      // Audio error ignored
+    }
+  }, [getAudioContext]);
+
   return (
     <SoundContext.Provider
       value={{
         isMuted,
         toggleSound,
+        unmute,
         playHover,
         playClick,
         playReveal,
         playSuccess,
+        playLogoSound,
       }}
     >
       {children}

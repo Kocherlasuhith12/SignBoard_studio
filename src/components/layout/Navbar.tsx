@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, ArrowUpRight, Sparkles } from "lucide-react";
+import { Menu, X, ArrowUpRight, Sparkles, Volume2, VolumeX } from "lucide-react";
 import { SignboardLogo } from "@/components/ui/SignboardLogo";
 import { useSound } from "@/context/SoundContext";
 
@@ -11,7 +11,7 @@ export function Navbar({ onStartProjectClick }: { onStartProjectClick?: () => vo
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState("");
   const [mounted, setMounted] = useState(false);
-  const { playHover, playClick } = useSound();
+  const { playHover, playClick, playLogoSound, toggleSound, isMuted } = useSound();
 
   // Studio live clock (IST - Indian Standard Time UTC+5:30)
   useEffect(() => {
@@ -70,16 +70,20 @@ export function Navbar({ onStartProjectClick }: { onStartProjectClick?: () => vo
         }`}
       >
         <div className="max-w-7xl mx-auto px-6 sm:px-8 flex items-center justify-between">
-          {/* Logo with magnetic hover effect */}
+          {/* Logo with magnetic hover effect and tactile acoustic chime */}
           <a
             href="#hero"
             onClick={(e) => {
               e.preventDefault();
+              playLogoSound();
               handleNavClick("#hero");
             }}
-            onMouseEnter={playHover}
+            onMouseEnter={() => {
+              playHover();
+            }}
             className="group flex items-center cursor-pointer"
-            data-cursor-text="STUDIO"
+            data-cursor-text="CHIME"
+            title="Signboard Studio — Touch logo for sound"
           >
             <SignboardLogo size={isScrolled ? "sm" : "md"} animated />
           </a>
@@ -104,11 +108,40 @@ export function Navbar({ onStartProjectClick }: { onStartProjectClick?: () => vo
           </nav>
 
           {/* Right Area: Time, Sound & Action CTA */}
-          <div className="hidden sm:flex items-center gap-5">
+          <div className="hidden sm:flex items-center gap-4">
             {/* Live Studio Ticker */}
             <div className="hidden xl:flex items-center gap-2 font-mono text-[11px] text-neutral-400 bg-white/[0.03] border border-white/5 px-3 py-1.5 rounded-full">
               <span>HYDERABAD {mounted && currentTime ? currentTime : "05:00:00"} IST</span>
             </div>
+
+            {/* Studio Sound Toggle Button */}
+            <button
+              onClick={() => {
+                toggleSound();
+              }}
+              onMouseEnter={playHover}
+              className="flex items-center gap-2 font-mono text-[11px] text-neutral-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 px-3 py-1.5 rounded-full transition-all group"
+              title={isMuted ? "Enable studio sound effects" : "Mute sound effects"}
+              aria-label={isMuted ? "Enable studio sound effects" : "Mute sound effects"}
+            >
+              {isMuted ? (
+                <>
+                  <VolumeX className="w-3.5 h-3.5 text-neutral-400 group-hover:text-white transition-colors" />
+                  <span className="text-[10px] tracking-wider uppercase text-neutral-400">SOUND: OFF</span>
+                </>
+              ) : (
+                <>
+                  <Volume2 className="w-3.5 h-3.5 text-[#F06A28]" />
+                  <span className="text-[10px] tracking-wider uppercase text-[#F06A28] font-semibold">SOUND: ON</span>
+                  {/* Subtle 3-bar Audio Waveform Equalizer */}
+                  <span className="flex items-end gap-[2px] h-2.5">
+                    <span className="w-[2px] h-full bg-[#F06A28] animate-pulse" />
+                    <span className="w-[2px] h-2 bg-[#F06A28] animate-pulse delay-75" />
+                    <span className="w-[2px] h-3 bg-[#F06A28] animate-pulse delay-150" />
+                  </span>
+                </>
+              )}
+            </button>
 
             {/* Start Project CTA */}
             <button
@@ -129,8 +162,18 @@ export function Navbar({ onStartProjectClick }: { onStartProjectClick?: () => vo
             </button>
           </div>
 
-          {/* Mobile Hamburger Toggle */}
-          <div className="flex sm:hidden items-center gap-3">
+          {/* Mobile Right Controls: Sound Toggle & Hamburger */}
+          <div className="flex sm:hidden items-center gap-2">
+            <button
+              onClick={() => {
+                toggleSound();
+              }}
+              className="p-2 rounded-full bg-white/10 border border-white/15 text-white focus:outline-none"
+              aria-label="Toggle sound"
+            >
+              {isMuted ? <VolumeX className="w-4 h-4 text-neutral-400" /> : <Volume2 className="w-4 h-4 text-[#F06A28]" />}
+            </button>
+
             <button
               onClick={() => {
                 playClick();
