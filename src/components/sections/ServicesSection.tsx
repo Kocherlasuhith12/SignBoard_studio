@@ -332,7 +332,7 @@ export function ServicesSection({ onServiceInquire }: { onServiceInquire?: (serv
                       <div className="text-emerald-400 font-semibold mb-1">&gt; export default function Experience()</div>
                       <div className="text-neutral-400 pl-4 mb-1">&#123; return &lt;Canvas camera=&#123;&#123; fov: 45 &#125;&#125;&gt;</div>
                       <div className="text-orange-300 pl-8 mb-1">&lt;SignboardArchitecturalMesh /&gt;</div>
-                      <div className="text-red-400 pl-8 mb-1">&lt;DynamicLightingEngine color="#B5121B" /&gt;</div>
+                      <div className="text-red-400 pl-8 mb-1">&lt;DynamicLightingEngine color=&quot;#B5121B&quot; /&gt;</div>
                       <div className="text-neutral-400 pl-4">&#125;</div>
                     </div>
 
@@ -622,8 +622,7 @@ export function ServicesSection({ onServiceInquire }: { onServiceInquire?: (serv
           </div>
         )}
       </AnimatePresence>
-    </div>
-    </section >
+    </section>
   );
 }
 

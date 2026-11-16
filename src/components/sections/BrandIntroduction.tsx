@@ -244,7 +244,7 @@ export function BrandIntroduction() {
                 <div>
                   <div className="flex items-center gap-2 mb-2 font-mono text-xs">
                     <span className="px-2.5 py-0.5 rounded-full bg-[#B5121B]/20 border border-[#B5121B]/40 text-[#F06A28] font-semibold uppercase">
-                      TENET {activeModalTenet.num} // {activeModalTenet.tag}
+                      TENET {activeModalTenet.num} &mdash; {activeModalTenet.tag}
                     </span>
                     <span className="text-neutral-400">SIGNBOARD ETHOS SPECIFICATION</span>
                   </div>
