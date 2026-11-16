@@ -28,6 +28,9 @@ export function SignboardMonogram({
   const [isSwinging, setIsSwinging] = useState(false);
 
   const triggerLogoTouch = (e?: React.SyntheticEvent) => {
+    if (e) {
+      e.stopPropagation();
+    }
     if (interactiveSound) {
       playLogoSound();
       setIsSwinging(true);
@@ -247,7 +250,10 @@ export function SignboardLogo({
     );
   }
 
-  const handleContainerTouch = () => {
+  const handleContainerTouch = (e?: React.SyntheticEvent) => {
+    if (e) {
+      e.stopPropagation();
+    }
     if (interactiveSound) {
       playLogoSound();
     }

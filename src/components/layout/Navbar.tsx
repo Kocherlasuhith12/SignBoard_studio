@@ -75,7 +75,6 @@ export function Navbar({ onStartProjectClick }: { onStartProjectClick?: () => vo
             href="#hero"
             onClick={(e) => {
               e.preventDefault();
-              playLogoSound();
               handleNavClick("#hero");
             }}
             onMouseEnter={() => {

@@ -25,11 +25,35 @@ const SoundContext = createContext<SoundContextType>({
 });
 
 export function SoundProvider({ children }: { children: React.ReactNode }) {
-  // Start with audio active (browsers suspend until first interaction, which getAudioContext handles)
   const [isMuted, setIsMuted] = useState(false);
   const audioCtxRef = useRef<AudioContext | null>(null);
+  const logoAudioRef = useRef<HTMLAudioElement | null>(null);
+  const clickAudioRef = useRef<HTMLAudioElement | null>(null);
+  const hoverAudioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Initialize Audio Context on demand with resume handling
+  // Preload audio elements
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+
+    try {
+      logoAudioRef.current = new Audio(`${basePath}/audio/logo-chime.wav`);
+      logoAudioRef.current.volume = 0.85;
+      logoAudioRef.current.preload = "auto";
+
+      clickAudioRef.current = new Audio(`${basePath}/audio/click.wav`);
+      clickAudioRef.current.volume = 0.5;
+      clickAudioRef.current.preload = "auto";
+
+      hoverAudioRef.current = new Audio(`${basePath}/audio/hover.wav`);
+      hoverAudioRef.current.volume = 0.25;
+      hoverAudioRef.current.preload = "auto";
+    } catch {
+      // Audio preload error ignored
+    }
+  }, []);
+
+  // Initialize Web Audio Context on demand with resume handling
   const getAudioContext = useCallback(() => {
     if (typeof window === "undefined") return null;
     if (!audioCtxRef.current) {
@@ -41,7 +65,7 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
       }
     }
     if (audioCtxRef.current && audioCtxRef.current.state === "suspended") {
-      audioCtxRef.current.resume();
+      audioCtxRef.current.resume().catch(() => {});
     }
     return audioCtxRef.current;
   }, []);
@@ -63,23 +87,28 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
   const playHover = useCallback(() => {
     if (isMuted) return;
     try {
+      if (hoverAudioRef.current) {
+        hoverAudioRef.current.currentTime = 0;
+        hoverAudioRef.current.play().catch(() => {});
+      }
+
       const ctx = getAudioContext();
       if (!ctx) return;
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
 
       osc.type = "sine";
-      osc.frequency.setValueAtTime(480, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(720, ctx.currentTime + 0.04);
+      osc.frequency.setValueAtTime(520, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(780, ctx.currentTime + 0.05);
 
-      gain.gain.setValueAtTime(0.015, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.04);
+      gain.gain.setValueAtTime(0.04, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.05);
 
       osc.connect(gain);
       gain.connect(ctx.destination);
 
       osc.start();
-      osc.stop(ctx.currentTime + 0.04);
+      osc.stop(ctx.currentTime + 0.05);
     } catch {
       // Audio error ignored
     }
@@ -88,23 +117,28 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
   const playClick = useCallback(() => {
     if (isMuted) return;
     try {
+      if (clickAudioRef.current) {
+        clickAudioRef.current.currentTime = 0;
+        clickAudioRef.current.play().catch(() => {});
+      }
+
       const ctx = getAudioContext();
       if (!ctx) return;
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
 
       osc.type = "triangle";
-      osc.frequency.setValueAtTime(240, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(90, ctx.currentTime + 0.08);
+      osc.frequency.setValueAtTime(280, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(90, ctx.currentTime + 0.09);
 
-      gain.gain.setValueAtTime(0.05, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+      gain.gain.setValueAtTime(0.08, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.09);
 
       osc.connect(gain);
       gain.connect(ctx.destination);
 
       osc.start();
-      osc.stop(ctx.currentTime + 0.08);
+      osc.stop(ctx.currentTime + 0.09);
     } catch {
       // Audio error ignored
     }
@@ -119,17 +153,17 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
       const gain = ctx.createGain();
 
       osc.type = "sine";
-      osc.frequency.setValueAtTime(180, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(360, ctx.currentTime + 0.3);
+      osc.frequency.setValueAtTime(220, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.35);
 
-      gain.gain.setValueAtTime(0.04, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+      gain.gain.setValueAtTime(0.07, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
 
       osc.connect(gain);
       gain.connect(ctx.destination);
 
       osc.start();
-      osc.stop(ctx.currentTime + 0.35);
+      osc.stop(ctx.currentTime + 0.4);
     } catch {
       // Audio error ignored
     }
@@ -144,7 +178,7 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
         const gain = ctx.createGain();
         osc.type = "sine";
         osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.08);
-        gain.gain.setValueAtTime(0.03, ctx.currentTime + i * 0.08);
+        gain.gain.setValueAtTime(0.06, ctx.currentTime + i * 0.08);
         gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + i * 0.08 + 0.2);
         osc.connect(gain);
         gain.connect(ctx.destination);
@@ -164,50 +198,65 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
   // Signature Signboard Studio Emblem Resonance Audio
   const playLogoSound = useCallback(() => {
     try {
+      // 1. Play synthesized WAV chime (instant across all browsers)
+      if (logoAudioRef.current) {
+        logoAudioRef.current.currentTime = 0;
+        logoAudioRef.current.play().catch(() => {});
+      }
+
+      // 2. Play Web Audio synth chords
       const ctx = getAudioContext();
       if (!ctx) return;
 
-      const now = ctx.currentTime;
+      const triggerSynth = () => {
+        const now = ctx.currentTime;
 
-      // 1. Tactile Signboard Mounting Strike (warm physical sub-bass drop)
-      const strikeOsc = ctx.createOscillator();
-      const strikeGain = ctx.createGain();
-      strikeOsc.type = "sine";
-      strikeOsc.frequency.setValueAtTime(160, now);
-      strikeOsc.frequency.exponentialRampToValueAtTime(52, now + 0.14);
+        // Sub-bass physical signboard mounting strike
+        const strikeOsc = ctx.createOscillator();
+        const strikeGain = ctx.createGain();
+        strikeOsc.type = "sine";
+        strikeOsc.frequency.setValueAtTime(160, now);
+        strikeOsc.frequency.exponentialRampToValueAtTime(52, now + 0.15);
 
-      strikeGain.gain.setValueAtTime(0.09, now);
-      strikeGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
+        strikeGain.gain.setValueAtTime(0.18, now);
+        strikeGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.18);
 
-      strikeOsc.connect(strikeGain);
-      strikeGain.connect(ctx.destination);
-      strikeOsc.start(now);
-      strikeOsc.stop(now + 0.16);
+        strikeOsc.connect(strikeGain);
+        strikeGain.connect(ctx.destination);
+        strikeOsc.start(now);
+        strikeOsc.stop(now + 0.18);
 
-      // 2. Harmonic Brand Chime Arpeggio: [A3: 220Hz, E4: 330Hz, A4: 440Hz, C#5: 554Hz, E5: 660Hz, A5: 880Hz]
-      const notes = [220, 330, 440, 554, 660, 880];
-      notes.forEach((freq, idx) => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
+        // Harmonic Chimes [A3, E4, A4, C#5, E5, A5]
+        const notes = [220, 329.6, 440, 554.4, 659.2, 880];
+        notes.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
 
-        osc.type = idx % 2 === 0 ? "sine" : "triangle";
-        const startTime = now + idx * 0.022;
-        const duration = 0.55 + idx * 0.05;
+          osc.type = idx % 2 === 0 ? "sine" : "triangle";
+          const startTime = now + idx * 0.02;
+          const duration = 0.65 + idx * 0.05;
 
-        osc.frequency.setValueAtTime(freq, startTime);
-        osc.frequency.exponentialRampToValueAtTime(freq * 1.008, startTime + duration);
+          osc.frequency.setValueAtTime(freq, startTime);
+          osc.frequency.exponentialRampToValueAtTime(freq * 1.008, startTime + duration);
 
-        const volume = (0.045 / (idx * 0.6 + 1));
-        gain.gain.setValueAtTime(0.0001, startTime);
-        gain.gain.exponentialRampToValueAtTime(volume, startTime + 0.015);
-        gain.gain.exponentialRampToValueAtTime(0.00001, startTime + duration);
+          const volume = 0.1 / (idx * 0.5 + 1);
+          gain.gain.setValueAtTime(0.0001, startTime);
+          gain.gain.exponentialRampToValueAtTime(volume, startTime + 0.015);
+          gain.gain.exponentialRampToValueAtTime(0.00001, startTime + duration);
 
-        osc.connect(gain);
-        gain.connect(ctx.destination);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
 
-        osc.start(startTime);
-        osc.stop(startTime + duration);
-      });
+          osc.start(startTime);
+          osc.stop(startTime + duration);
+        });
+      };
+
+      if (ctx.state === "suspended") {
+        ctx.resume().then(triggerSynth).catch(() => {});
+      } else {
+        triggerSynth();
+      }
     } catch {
       // Audio error ignored
     }
@@ -234,4 +283,3 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
 export function useSound() {
   return useContext(SoundContext);
 }
-
