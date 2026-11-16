@@ -65,11 +65,11 @@ export function Navbar({ onStartProjectClick }: { onStartProjectClick?: () => vo
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
           isScrolled
-            ? "py-3.5 bg-[#0A0A0A]/85 backdrop-blur-md border-b border-white/5 shadow-2xl"
+            ? "py-3.5 bg-[#0A0A0A]/90 backdrop-blur-md border-b border-white/5 shadow-2xl"
             : "py-6 bg-transparent"
         }`}
       >
-        <div className="max-w-7xl mx-auto px-6 sm:px-8 flex items-center justify-between">
+        <div className="max-w-[1540px] w-full mx-auto px-6 sm:px-10 lg:px-14 flex items-center justify-between gap-8">
           {/* Logo with magnetic hover effect and tactile acoustic chime */}
           <a
             href="#hero"
@@ -80,15 +80,15 @@ export function Navbar({ onStartProjectClick }: { onStartProjectClick?: () => vo
             onMouseEnter={() => {
               playHover();
             }}
-            className="group flex items-center cursor-pointer"
+            className="group flex items-center cursor-pointer shrink-0"
             data-cursor-text="CHIME"
             title="Signboard Studio — Touch logo for sound"
           >
-            <SignboardLogo size={isScrolled ? "sm" : "md"} animated />
+            <SignboardLogo size="sm" animated />
           </a>
 
-          {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-8 text-xs font-mono tracking-[0.2em] uppercase text-neutral-400">
+          {/* Desktop Navigation Links — Centered with Generous Breathing Room */}
+          <nav className="hidden lg:flex items-center gap-8 xl:gap-11 text-xs font-mono tracking-[0.22em] uppercase text-neutral-400">
             {navItems.map((item) => (
               <a
                 key={item.label}
@@ -98,7 +98,7 @@ export function Navbar({ onStartProjectClick }: { onStartProjectClick?: () => vo
                   handleNavClick(item.href);
                 }}
                 onMouseEnter={playHover}
-                className="relative py-1 hover:text-white transition-colors duration-200 group"
+                className="relative py-1.5 hover:text-white transition-colors duration-200 group whitespace-nowrap"
               >
                 <span>{item.label}</span>
                 <span className="absolute bottom-0 left-0 w-0 h-[1.5px] bg-gradient-to-r from-[#B5121B] to-[#F06A28] transition-all duration-300 group-hover:w-full" />
@@ -106,13 +106,8 @@ export function Navbar({ onStartProjectClick }: { onStartProjectClick?: () => vo
             ))}
           </nav>
 
-          {/* Right Area: Time, Sound & Action CTA */}
-          <div className="hidden sm:flex items-center gap-4">
-            {/* Live Studio Ticker */}
-            <div className="hidden xl:flex items-center gap-2 font-mono text-[11px] text-neutral-400 bg-white/[0.03] border border-white/5 px-3 py-1.5 rounded-full">
-              <span>HYDERABAD {mounted && currentTime ? currentTime : "05:00:00"} IST</span>
-            </div>
-
+          {/* Right Area: Hi-Fi Audio Control & Start Project CTA */}
+          <div className="hidden sm:flex items-center gap-4 shrink-0">
             {/* Studio Hi-Fi Audio Control Widget */}
             <button
               onClick={() => {
