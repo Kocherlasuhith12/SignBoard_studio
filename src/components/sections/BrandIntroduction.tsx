@@ -19,7 +19,7 @@ interface ManifestoPoint {
 
 export function BrandIntroduction() {
   const [activeModalTenet, setActiveModalTenet] = useState<ManifestoPoint | null>(null);
-  const { playHover, playClick, playReveal } = useSound();
+  const { playHover, playClick, playReveal, playModalClose } = useSound();
 
   const manifestoPoints: ManifestoPoint[] = [
     {
@@ -107,7 +107,7 @@ export function BrandIntroduction() {
   };
 
   const handleCloseTenet = () => {
-    playClick();
+    playModalClose();
     setActiveModalTenet(null);
     document.body.style.overflow = "unset";
   };
@@ -256,6 +256,7 @@ export function BrandIntroduction() {
 
                 <button
                   onClick={handleCloseTenet}
+                  onMouseEnter={playHover}
                   className="p-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-neutral-300 hover:text-white transition-colors"
                 >
                   <X className="w-5 h-5" />
@@ -320,6 +321,7 @@ export function BrandIntroduction() {
                 <div className="flex items-center gap-3 w-full sm:w-auto">
                   <button
                     onClick={handleCloseTenet}
+                    onMouseEnter={playHover}
                     className="flex-1 sm:flex-initial px-5 py-2.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 font-mono text-xs uppercase tracking-wider text-neutral-300 transition-colors"
                   >
                     Close

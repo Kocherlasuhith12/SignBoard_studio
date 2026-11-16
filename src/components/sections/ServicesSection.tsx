@@ -8,7 +8,7 @@ import { useSound } from "@/context/SoundContext";
 export function ServicesSection({ onServiceInquire }: { onServiceInquire?: (serviceName: string) => void }) {
   const [activeTab, setActiveTab] = useState(0);
   const [activeModalService, setActiveModalService] = useState<any | null>(null);
-  const { playHover, playClick, playReveal } = useSound();
+  const { playHover, playClick, playReveal, playModalClose, playTabSwitch } = useSound();
 
   const handleOpenServiceModal = (serv: any) => {
     playReveal();
@@ -17,7 +17,7 @@ export function ServicesSection({ onServiceInquire }: { onServiceInquire?: (serv
   };
 
   const handleCloseServiceModal = () => {
-    playClick();
+    playModalClose();
     setActiveModalService(null);
     document.body.style.overflow = "unset";
   };
@@ -147,7 +147,7 @@ export function ServicesSection({ onServiceInquire }: { onServiceInquire?: (serv
               <motion.button
                 key={service.id}
                 onClick={() => {
-                  playClick();
+                  playTabSwitch();
                   setActiveTab(index);
                 }}
                 onMouseEnter={playHover}
@@ -534,6 +534,7 @@ export function ServicesSection({ onServiceInquire }: { onServiceInquire?: (serv
 
                 <button
                   onClick={handleCloseServiceModal}
+                  onMouseEnter={playHover}
                   className="p-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-neutral-300 hover:text-white transition-colors"
                 >
                   <X className="w-5 h-5" />
@@ -596,6 +597,7 @@ export function ServicesSection({ onServiceInquire }: { onServiceInquire?: (serv
                 <div className="flex items-center gap-3 w-full sm:w-auto">
                   <button
                     onClick={handleCloseServiceModal}
+                    onMouseEnter={playHover}
                     className="flex-1 sm:flex-initial px-5 py-2.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 font-mono text-xs uppercase tracking-wider text-neutral-300 transition-colors"
                   >
                     Close Dossier

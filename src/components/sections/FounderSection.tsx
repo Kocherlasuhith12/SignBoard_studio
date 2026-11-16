@@ -10,7 +10,7 @@ const assetPrefix = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
 export function FounderSection({ onDirectConnect }: { onDirectConnect?: () => void }) {
   const [activeTab, setActiveTab] = useState<"philosophy" | "background" | "stack" | "reel">("philosophy");
-  const { playHover, playClick } = useSound();
+  const { playHover, playClick, playTabSwitch } = useSound();
 
   const skills = [
     { name: "Full-Stack Web Architecture", level: "Production", category: "Code" },
@@ -156,7 +156,7 @@ export function FounderSection({ onDirectConnect }: { onDirectConnect?: () => vo
                   <button
                     key={tab.id}
                     onClick={() => {
-                      playClick();
+                      playTabSwitch();
                       setActiveTab(tab.id);
                     }}
                     onMouseEnter={playHover}

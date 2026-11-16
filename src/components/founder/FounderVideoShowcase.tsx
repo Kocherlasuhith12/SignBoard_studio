@@ -13,6 +13,7 @@ import {
   ArrowRight,
   CheckCircle2,
 } from "lucide-react";
+import { useSound } from "@/context/SoundContext";
 
 import wordsData from "./words_timing.json";
 import sentencesData from "./subtitles_data.json";
@@ -50,6 +51,7 @@ export function FounderVideoShowcase({ onStartProject }: { onStartProject?: () =
   const [isMuted, setIsMuted] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isVideoAvailable, setIsVideoAvailable] = useState(false);
+  const { playHover, playClick, playReveal, playModalClose, playTabSwitch } = useSound();
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -192,7 +194,10 @@ export function FounderVideoShowcase({ onStartProject }: { onStartProject?: () =
               : "CLICK TO PLAY ESSAY"}
           </span>
           <button
-            onClick={() => setIsModalOpen(true)}
+            onClick={() => {
+              playReveal();
+              setIsModalOpen(true);
+            }}
             className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-neutral-300 hover:text-white transition-colors"
             title="Full Screen Cinema Mode"
           >
@@ -428,7 +433,10 @@ export function FounderVideoShowcase({ onStartProject }: { onStartProject?: () =
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[250] bg-black/95 backdrop-blur-2xl flex flex-col justify-between p-6 sm:p-12 text-white overflow-y-auto"
-            onClick={() => setIsModalOpen(false)}
+            onClick={() => {
+              playModalClose();
+              setIsModalOpen(false);
+            }}
           >
             {/* Modal Header */}
             <div className="flex items-center justify-between w-full max-w-5xl mx-auto mb-6">
@@ -442,7 +450,10 @@ export function FounderVideoShowcase({ onStartProject }: { onStartProject?: () =
               </div>
 
               <button
-                onClick={() => setIsModalOpen(false)}
+                onClick={() => {
+                  playModalClose();
+                  setIsModalOpen(false);
+                }}
                 className="px-4 py-2 rounded-full bg-white/10 hover:bg-[#B5121B] font-mono text-xs uppercase tracking-wider text-white transition-colors"
               >
                 CLOSE [ESC]

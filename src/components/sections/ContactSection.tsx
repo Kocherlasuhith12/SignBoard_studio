@@ -40,7 +40,7 @@ export function ContactSection({ onStartProject }: ContactSectionProps) {
   const [errorMessage, setErrorMessage] = useState("");
   const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
 
-  const { playHover, playClick, playSuccess } = useSound();
+  const { playHover, playClick, playReveal, playModalClose, playTabSwitch, playSuccess } = useSound();
 
   const studioEmail = "contact@signboardstudio.com";
   const founderEmail = "suhith@signboardstudio.com";
@@ -401,7 +401,7 @@ export function ContactSection({ onStartProject }: ContactSectionProps) {
                             type="button"
                             key={tier.label}
                             onClick={() => {
-                              playClick();
+                              playTabSwitch();
                               setFormData({ ...formData, budget: tier.value });
                             }}
                             onMouseEnter={playHover}
@@ -463,7 +463,10 @@ export function ContactSection({ onStartProject }: ContactSectionProps) {
                     </span>
                     <button
                       type="button"
-                      onClick={() => setIsPrivacyModalOpen(true)}
+                      onClick={() => {
+                        playReveal();
+                        setIsPrivacyModalOpen(true);
+                      }}
                       className="text-neutral-400 hover:text-white underline underline-offset-2 transition-colors text-left sm:text-right"
                     >
                       Privacy & Confidentiality Notice
@@ -599,7 +602,10 @@ export function ContactSection({ onStartProject }: ContactSectionProps) {
         {isPrivacyModalOpen && (
           <div
             className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
-            onClick={() => setIsPrivacyModalOpen(false)}
+            onClick={() => {
+              playModalClose();
+              setIsPrivacyModalOpen(false);
+            }}
           >
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
@@ -614,7 +620,10 @@ export function ContactSection({ onStartProject }: ContactSectionProps) {
                   CONFIDENTIALITY & PRIVACY POLICY
                 </div>
                 <button
-                  onClick={() => setIsPrivacyModalOpen(false)}
+                  onClick={() => {
+                    playModalClose();
+                    setIsPrivacyModalOpen(false);
+                  }}
                   className="p-1 rounded-lg text-neutral-400 hover:text-white transition-colors"
                 >
                   <X className="w-5 h-5" />
@@ -635,7 +644,10 @@ export function ContactSection({ onStartProject }: ContactSectionProps) {
 
               <div className="pt-4 border-t border-white/10 flex justify-end">
                 <button
-                  onClick={() => setIsPrivacyModalOpen(false)}
+                  onClick={() => {
+                    playModalClose();
+                    setIsPrivacyModalOpen(false);
+                  }}
                   className="px-5 py-2 rounded-full bg-white/10 hover:bg-white/20 text-white font-mono text-xs uppercase tracking-wider transition-colors"
                 >
                   Close Notice

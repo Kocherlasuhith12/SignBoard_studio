@@ -8,7 +8,7 @@ import { useSound } from "@/context/SoundContext";
 export function ProcessSection() {
   const [activeStep, setActiveStep] = useState(0);
   const [activeModalStep, setActiveModalStep] = useState<any | null>(null);
-  const { playHover, playClick, playReveal } = useSound();
+  const { playHover, playClick, playReveal, playModalClose, playTabSwitch } = useSound();
 
   const handleOpenStepModal = (st: any) => {
     playReveal();
@@ -17,7 +17,7 @@ export function ProcessSection() {
   };
 
   const handleCloseStepModal = () => {
-    playClick();
+    playModalClose();
     setActiveModalStep(null);
     document.body.style.overflow = "unset";
   };
@@ -135,7 +135,7 @@ export function ProcessSection() {
                 <motion.button
                   key={step.number}
                   onClick={() => {
-                    playClick();
+                    playTabSwitch();
                     setActiveStep(idx);
                   }}
                   onMouseEnter={playHover}
@@ -220,22 +220,31 @@ export function ProcessSection() {
                 {current.description}
               </p>
 
-              {/* Navigation to next step */}
-              <div className="flex items-center gap-4">
+              {/* Action and Navigation buttons */}
+              <div className="flex flex-wrap items-center gap-4">
+                <button
+                  onClick={() => handleOpenStepModal(current)}
+                  onMouseEnter={playHover}
+                  className="px-5 py-2.5 rounded-full bg-white/10 hover:bg-white/15 border border-white/20 text-white font-mono text-xs uppercase tracking-wider flex items-center gap-2 transition-all hover:scale-105"
+                >
+                  <Maximize2 className="w-3.5 h-3.5 text-[#F06A28]" />
+                  <span>VIEW FULL PHASE BLUEPRINT</span>
+                </button>
+
                 {activeStep < steps.length - 1 ? (
                   <button
                     onClick={() => {
-                      playClick();
+                      playTabSwitch();
                       setActiveStep(activeStep + 1);
                     }}
                     onMouseEnter={playHover}
-                    className="flex items-center gap-2 font-mono text-xs text-neutral-300 hover:text-white uppercase tracking-widest transition-colors"
+                    className="flex items-center gap-2 font-mono text-xs text-neutral-300 hover:text-white uppercase tracking-widest transition-colors py-2.5"
                   >
                     <span>PROCEED TO PHASE {steps[activeStep + 1].number} ({steps[activeStep + 1].title})</span>
                     <ChevronRight className="w-4 h-4 text-[#F06A28]" />
                   </button>
                 ) : (
-                  <span className="font-mono text-xs text-emerald-400 uppercase tracking-widest flex items-center gap-2">
+                  <span className="font-mono text-xs text-emerald-400 uppercase tracking-widest flex items-center gap-2 py-2.5">
                     <CheckCircle2 className="w-4 h-4" />
                     PROJECT DEPLOYED & CELEBRATED
                   </span>
@@ -251,7 +260,7 @@ export function ProcessSection() {
               </h4>
 
               <div className="space-y-4">
-                {current.deliverables.map((item) => (
+                {current.deliverables.map((item: string) => (
                   <div key={item} className="flex items-start gap-3">
                     <CheckCircle2 className="w-4 h-4 text-[#F06A28] shrink-0 mt-0.5" />
                     <span className="font-sans text-sm text-neutral-200">{item}</span>
@@ -262,6 +271,115 @@ export function ProcessSection() {
           </motion.div>
         </AnimatePresence>
       </div>
+
+      {/* Pop Blueprint Modal for Process Step */}
+      <AnimatePresence>
+        {activeModalStep && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/85 backdrop-blur-md overflow-y-auto"
+            onClick={handleCloseStepModal}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.88, y: 25 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ type: "spring", damping: 25, stiffness: 350 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative w-full max-w-3xl bg-[#121212] border border-white/15 rounded-3xl p-6 sm:p-10 my-8 shadow-2xl max-h-[90vh] overflow-y-auto text-white"
+            >
+              {/* Modal Top Bar */}
+              <div className="flex items-start justify-between pb-6 border-b border-white/10 mb-6">
+                <div>
+                  <div className="flex items-center gap-3 mb-2 font-mono text-xs">
+                    <span className="px-2.5 py-0.5 rounded-full bg-[#B5121B]/20 border border-[#B5121B]/40 text-[#F06A28] font-bold">
+                      PHASE {activeModalStep.number} BLUEPRINT
+                    </span>
+                    <span className="text-neutral-400">
+                      {activeModalStep.duration}
+                    </span>
+                  </div>
+
+                  <h2 className="font-serif text-3xl sm:text-4xl font-bold uppercase tracking-tight text-white">
+                    {activeModalStep.title} &mdash; METHODOLOGY
+                  </h2>
+                </div>
+
+                <button
+                  onClick={handleCloseStepModal}
+                  onMouseEnter={playHover}
+                  className="p-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-neutral-300 hover:text-white transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Tagline Callout */}
+              <div className="p-5 rounded-2xl bg-gradient-to-r from-white/[0.04] to-white/[0.01] border border-white/10 mb-8 font-mono text-sm sm:text-base text-[#F06A28] leading-relaxed">
+                {activeModalStep.tagline}
+              </div>
+
+              {/* Modal Content Sections */}
+              <div className="space-y-6 mb-8 text-neutral-300 text-sm sm:text-base font-sans">
+                <div>
+                  <h3 className="font-mono text-xs uppercase tracking-[0.25em] text-[#F06A28] mb-2 font-semibold">
+                    01 // EXECUTIVE DISCIPLINE OVERVIEW
+                  </h3>
+                  <p className="leading-relaxed font-light text-neutral-300">
+                    {activeModalStep.description}
+                  </p>
+                </div>
+
+                <div>
+                  <h3 className="font-mono text-xs uppercase tracking-[0.25em] text-[#B5121B] mb-3 font-semibold">
+                    02 // VERIFIABLE PRODUCTION DELIVERABLES
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {activeModalStep.deliverables.map((item: string) => (
+                      <div
+                        key={item}
+                        className="flex items-start gap-2.5 p-3 rounded-xl bg-white/[0.03] border border-white/5 text-xs sm:text-sm text-neutral-200"
+                      >
+                        <CheckCircle2 className="w-4 h-4 text-[#F06A28] shrink-0 mt-0.5" />
+                        <span>{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Modal Footer CTA */}
+              <div className="pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <span className="font-mono text-xs text-neutral-400">
+                  Ready to initiate this phase?
+                </span>
+
+                <div className="flex items-center gap-3 w-full sm:w-auto">
+                  <button
+                    onClick={handleCloseStepModal}
+                    onMouseEnter={playHover}
+                    className="flex-1 sm:flex-initial px-5 py-2.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 font-mono text-xs uppercase tracking-wider text-neutral-300 transition-colors"
+                  >
+                    Close Blueprint
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      handleCloseStepModal();
+                      const contact = document.querySelector("#contact");
+                      contact?.scrollIntoView({ behavior: "smooth" });
+                    }}
+                    onMouseEnter={playHover}
+                    className="flex-1 sm:flex-initial px-6 py-2.5 rounded-full bg-gradient-to-r from-[#B5121B] to-[#F06A28] text-white font-mono text-xs uppercase tracking-widest font-semibold flex items-center justify-center gap-2 hover:scale-105 transition-all shadow-md"
+                  >
+                    <span>Initiate Project</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }
