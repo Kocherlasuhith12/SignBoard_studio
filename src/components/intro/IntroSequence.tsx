@@ -57,6 +57,7 @@ export function IntroSequence({
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("wheel", handleWheel);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playReveal]);
 
   const handleSkip = () => {

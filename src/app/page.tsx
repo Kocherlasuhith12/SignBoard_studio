@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { HeroSection } from "@/components/sections/HeroSection";
 import { BrandIntroduction } from "@/components/sections/BrandIntroduction";
@@ -10,36 +10,70 @@ import { FounderSection } from "@/components/sections/FounderSection";
 import { ProcessSection } from "@/components/sections/ProcessSection";
 import { ContactSection } from "@/components/sections/ContactSection";
 import { Footer } from "@/components/layout/Footer";
-import { IntroSequence } from "@/components/intro/IntroSequence";
+import { CinematicParticleIntro } from "@/components/intro/CinematicParticleIntro";
 
 export default function Home() {
-  const [showCinematicMode, setShowCinematicMode] = useState(false);
+  const [showIntro, setShowIntro] = useState<boolean>(false);
+
+  // Check session storage and prefers-reduced-motion on mount
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    // Respect prefers-reduced-motion
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+
+    if (prefersReducedMotion) {
+      return;
+    }
+
+    // Run intro once per browser session by default
+    const hasViewed = sessionStorage.getItem("signboard_intro_viewed");
+    if (!hasViewed) {
+      setShowIntro(true);
+    }
+  }, []);
+
+  const handleIntroComplete = useCallback(() => {
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("signboard_intro_viewed", "true");
+    }
+    setShowIntro(false);
+  }, []);
+
+  const handleReplayIntro = useCallback(() => {
+    setShowIntro(true);
+  }, []);
 
   const handleExplore = () => {
-    setShowCinematicMode(false);
+    setShowIntro(false);
     const target = document.querySelector("#about");
     target?.scrollIntoView({ behavior: "smooth" });
   };
 
   const handleStartProject = () => {
-    setShowCinematicMode(false);
+    setShowIntro(false);
     const target = document.querySelector("#contact");
     target?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
     <div className="relative min-h-screen bg-[#070707] text-[#EDEDED] overflow-x-hidden">
-      {/* Full-Screen Cinematic Opening Experience (Triggered on demand or replayable) */}
-      {showCinematicMode && (
-        <IntroSequence
-          onComplete={() => setShowCinematicMode(false)}
+      {/* Cinematic Interactive Particle Intro Experience (WebGL + Three.js + GSAP) */}
+      {showIntro && (
+        <CinematicParticleIntro
+          onComplete={handleIntroComplete}
           onExplore={handleExplore}
           onStartProject={handleStartProject}
         />
       )}
 
-      {/* Main Website Structure - Renders Immediately With Full Richness */}
-      <Navbar onStartProjectClick={handleStartProject} />
+      {/* Main Website Structure - Rendered in DOM Immediately for SEO and Instant Accessibility */}
+      <Navbar
+        onStartProjectClick={handleStartProject}
+        onReplayIntro={handleReplayIntro}
+      />
 
       <HeroSection
         onExploreClick={handleExplore}
@@ -58,7 +92,7 @@ export default function Home() {
 
       <ContactSection />
 
-      <Footer />
+      <Footer onReplayIntro={handleReplayIntro} />
     </div>
   );
 }

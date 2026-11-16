@@ -232,6 +232,7 @@ export function SelectedWorkSection() {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeModalProject]);
 
   // Bespoke Project Visual Artwork Component

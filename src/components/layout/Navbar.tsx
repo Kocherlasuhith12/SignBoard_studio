@@ -6,7 +6,13 @@ import { Menu, X, ArrowUpRight, Sparkles, Volume2, VolumeX } from "lucide-react"
 import { SignboardLogo } from "@/components/ui/SignboardLogo";
 import { useSound } from "@/context/SoundContext";
 
-export function Navbar({ onStartProjectClick }: { onStartProjectClick?: () => void }) {
+export function Navbar({
+  onStartProjectClick,
+  onReplayIntro,
+}: {
+  onStartProjectClick?: () => void;
+  onReplayIntro?: () => void;
+}) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState("");
@@ -152,6 +158,23 @@ export function Navbar({ onStartProjectClick }: { onStartProjectClick?: () => vo
               )}
             </button>
 
+            {/* Replay Cinematic Intro Trigger */}
+            {onReplayIntro && (
+              <button
+                onClick={() => {
+                  playClick();
+                  onReplayIntro();
+                }}
+                onMouseEnter={playHover}
+                className="flex items-center gap-2 font-mono text-xs px-3.5 py-1.5 rounded-full border border-white/10 hover:border-[#F06A28]/40 bg-white/[0.04] hover:bg-[#F06A28]/10 text-neutral-300 hover:text-white transition-all duration-300 shadow-sm"
+                title="Replay cinematic particle intro experience"
+                aria-label="Replay cinematic particle intro experience"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-[#F06A28]" />
+                <span className="text-[10px] tracking-widest uppercase font-semibold">REPLAY INTRO</span>
+              </button>
+            )}
+
             {/* Start Project CTA */}
             <button
               onClick={() => {
@@ -259,6 +282,20 @@ export function Navbar({ onStartProjectClick }: { onStartProjectClick?: () => vo
                   </span>
                 )}
               </button>
+
+              {onReplayIntro && (
+                <button
+                  onClick={() => {
+                    playClick();
+                    setMobileMenuOpen(false);
+                    onReplayIntro();
+                  }}
+                  className="w-full p-3.5 rounded-xl border border-white/10 hover:border-[#F06A28]/40 bg-white/[0.04] text-neutral-300 hover:text-white flex items-center justify-center gap-2.5 font-mono text-xs uppercase tracking-widest font-semibold transition-all"
+                >
+                  <Sparkles className="w-4 h-4 text-[#F06A28]" />
+                  <span>REPLAY CINEMATIC INTRO</span>
+                </button>
+              )}
 
               <button
                 onClick={() => {
