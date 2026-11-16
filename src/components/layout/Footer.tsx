@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { ArrowUp, Instagram, Github, Linkedin, Twitter, Sparkles } from "lucide-react";
+import { ArrowUp, Instagram, Github, Linkedin, Twitter, Sparkles, Mail } from "lucide-react";
 import { SignboardLogo } from "@/components/ui/SignboardLogo";
 import { useSound } from "@/context/SoundContext";
 
@@ -23,6 +23,12 @@ export function Footer({ onReplayIntro }: { onReplayIntro?: () => void }) {
   ];
 
   const socialLinks = [
+    {
+      label: "Direct Email",
+      href: "mailto:kocherlasravan@gmail.com",
+      icon: Mail,
+      handle: "kocherlasravan@gmail.com",
+    },
     {
       label: "LinkedIn",
       href: "https://www.linkedin.com/in/kocherlakoteswarasuhithsravanbabu/",

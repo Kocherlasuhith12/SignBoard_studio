@@ -42,8 +42,8 @@ export function ContactSection({ onStartProject }: ContactSectionProps) {
 
   const { playHover, playClick, playReveal, playModalClose, playTabSwitch, playSuccess } = useSound();
 
-  const studioEmail = "contact@signboardstudio.com";
-  const founderEmail = "suhith@signboardstudio.com";
+  const studioEmail = "kocherlasravan@gmail.com";
+  const founderEmail = "kocherlasravan@gmail.com";
 
   const projectTypes = [
     "Flagship Web Architecture (Next.js)",
@@ -118,7 +118,7 @@ export function ContactSection({ onStartProject }: ContactSectionProps) {
 
     const targetEndpoint =
       process.env.NEXT_PUBLIC_CONTACT_ENDPOINT ||
-      "https://formsubmit.co/ajax/contact@signboardstudio.com";
+      "https://formsubmit.co/ajax/kocherlasravan@gmail.com";
 
     try {
       const response = await fetch(targetEndpoint, {
@@ -275,13 +275,13 @@ export function ContactSection({ onStartProject }: ContactSectionProps) {
                           <div className="font-semibold text-white">
                             {errorMessage.toLowerCase().includes("activation") ||
                             errorMessage.toLowerCase().includes("activate")
-                              ? "Form Activation Required for contact@signboardstudio.com"
+                              ? "Form Activation Required for kocherlasravan@gmail.com"
                               : "Direct Dispatch Notice"}
                           </div>
                           <div className="text-xs text-red-200/90 leading-relaxed mt-1">
                             {errorMessage.toLowerCase().includes("activation") ||
                             errorMessage.toLowerCase().includes("activate")
-                              ? "FormSubmit sent an initial confirmation email to contact@signboardstudio.com. Please open that mailbox and click 'Activate Form' once to authorize web submissions. In the meantime, you can send your inquiry immediately using the direct email button below."
+                              ? "FormSubmit sent an initial confirmation email to kocherlasravan@gmail.com. Please open that mailbox and click 'Activate Form' once to authorize web submissions. In the meantime, you can send your inquiry immediately using the direct email button below."
                               : errorMessage}
                           </div>
                         </div>
