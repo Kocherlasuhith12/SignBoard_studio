@@ -32,41 +32,13 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
   const [isMuted, setIsMuted] = useState(false);
   const audioCtxRef = useRef<AudioContext | null>(null);
 
-  // Preloaded audio element refs for instantaneous zero-latency playback
-  const logoAudioRef = useRef<HTMLAudioElement | null>(null);
-  const clickAudioRef = useRef<HTMLAudioElement | null>(null);
-  const hoverAudioRef = useRef<HTMLAudioElement | null>(null);
-  const modalOpenAudioRef = useRef<HTMLAudioElement | null>(null);
-  const modalCloseAudioRef = useRef<HTMLAudioElement | null>(null);
-  const tabAudioRef = useRef<HTMLAudioElement | null>(null);
-  const successAudioRef = useRef<HTMLAudioElement | null>(null);
+  // In-memory pre-decoded AudioBuffer cache for TRUE 0ms latency
+  const audioBuffersRef = useRef<Map<string, AudioBuffer>>(new Map());
 
-  // Preload audio elements
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+  // HTML5 Audio fallbacks for instant initial safety
+  const fallbackAudiosRef = useRef<Map<string, HTMLAudioElement>>(new Map());
 
-    const loadSound = (file: string, volume: number) => {
-      try {
-        const a = new Audio(`${basePath}/audio/${file}`);
-        a.volume = volume;
-        a.preload = "auto";
-        return a;
-      } catch {
-        return null;
-      }
-    };
-
-    logoAudioRef.current = loadSound("logo-chime.wav", 1.0);
-    clickAudioRef.current = loadSound("click.wav", 0.9);
-    hoverAudioRef.current = loadSound("hover.wav", 0.45);
-    modalOpenAudioRef.current = loadSound("modal-open.wav", 0.85);
-    modalCloseAudioRef.current = loadSound("modal-close.wav", 0.6);
-    tabAudioRef.current = loadSound("tab-switch.wav", 0.8);
-    successAudioRef.current = loadSound("success.wav", 0.95);
-  }, []);
-
-  // Initialize Web Audio Context on demand with resume handling
+  // Get or initialize AudioContext
   const getAudioContext = useCallback(() => {
     if (typeof window === "undefined") return null;
     if (!audioCtxRef.current) {
@@ -74,7 +46,12 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
         window.AudioContext ||
         (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       if (AudioCtx) {
-        audioCtxRef.current = new AudioCtx();
+        // lowlatency latencyHint for hardware-accelerated instant response
+        try {
+          audioCtxRef.current = new AudioCtx({ latencyHint: "interactive" });
+        } catch {
+          audioCtxRef.current = new AudioCtx();
+        }
       }
     }
     if (audioCtxRef.current && audioCtxRef.current.state === "suspended") {
@@ -82,6 +59,107 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
     }
     return audioCtxRef.current;
   }, []);
+
+  // Pre-load and decode all audio buffers into RAM on mount
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+
+    const soundFiles: Record<string, string> = {
+      click: `${basePath}/audio/click.wav`,
+      hover: `${basePath}/audio/hover.wav`,
+      logo: `${basePath}/audio/logo-chime.wav`,
+      reveal: `${basePath}/audio/modal-open.wav`,
+      close: `${basePath}/audio/modal-close.wav`,
+      tab: `${basePath}/audio/tab-switch.wav`,
+      success: `${basePath}/audio/success.wav`,
+    };
+
+    // 1. Prime AudioContext on very first user gesture (pointerdown, keydown, touch)
+    const primeAudioContext = () => {
+      const ctx = getAudioContext();
+      if (ctx && ctx.state === "suspended") {
+        ctx.resume().catch(() => {});
+      }
+    };
+
+    window.addEventListener("pointerdown", primeAudioContext, { passive: true });
+    window.addEventListener("keydown", primeAudioContext, { passive: true });
+    window.addEventListener("touchstart", primeAudioContext, { passive: true });
+
+    // 2. Pre-fetch and decode AudioBuffers
+    Object.entries(soundFiles).forEach(async ([key, url]) => {
+      try {
+        // Prepare fallback HTMLAudioElement
+        const fallbackAudio = new Audio(url);
+        fallbackAudio.preload = "auto";
+        fallbackAudiosRef.current.set(key, fallbackAudio);
+
+        // Fetch ArrayBuffer and decode via Web Audio for 0ms latency
+        const res = await fetch(url);
+        const arrayBuf = await res.arrayBuffer();
+        const ctx = getAudioContext();
+        if (ctx) {
+          ctx.decodeAudioData(
+            arrayBuf,
+            (decoded) => {
+              audioBuffersRef.current.set(key, decoded);
+            },
+            () => {}
+          );
+        }
+      } catch {
+        // Ignore load errors
+      }
+    });
+
+    return () => {
+      window.removeEventListener("pointerdown", primeAudioContext);
+      window.removeEventListener("keydown", primeAudioContext);
+      window.removeEventListener("touchstart", primeAudioContext);
+    };
+  }, [getAudioContext]);
+
+  // Master 0ms instant playback trigger using AudioBufferSourceNode
+  const playInstantBuffer = useCallback(
+    (name: string, volume = 0.9) => {
+      if (isMuted) return;
+
+      const ctx = getAudioContext();
+      if (!ctx) return;
+
+      const buffer = audioBuffersRef.current.get(name);
+
+      if (buffer) {
+        // Play directly on Web Audio hardware thread with 0ms latency
+        const source = ctx.createBufferSource();
+        source.buffer = buffer;
+
+        const gainNode = ctx.createGain();
+        gainNode.gain.setValueAtTime(volume, ctx.currentTime);
+
+        source.connect(gainNode);
+        gainNode.connect(ctx.destination);
+
+        if (ctx.state === "suspended") {
+          ctx.resume().then(() => {
+            source.start(0);
+          }).catch(() => {});
+        } else {
+          source.start(0);
+        }
+      } else {
+        // Fast fallback if buffer is still decoding
+        const fallback = fallbackAudiosRef.current.get(name);
+        if (fallback) {
+          fallback.currentTime = 0;
+          fallback.volume = Math.min(1.0, volume);
+          fallback.play().catch(() => {});
+        }
+      }
+    },
+    [isMuted, getAudioContext]
+  );
 
   const unmute = useCallback(() => {
     setIsMuted(false);
@@ -93,91 +171,38 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
     setIsMuted(nextMuted);
     if (!nextMuted) {
       getAudioContext();
-      if (clickAudioRef.current) {
-        clickAudioRef.current.currentTime = 0;
-        clickAudioRef.current.play().catch(() => {});
-      }
+      playInstantBuffer("click", 0.9);
     }
   };
 
-  // Helper to play an audio element with fallback cloning if overlapping
-  const playAudioElement = useCallback((audioRef: React.RefObject<HTMLAudioElement | null>, fallbackVolume = 0.8) => {
-    if (isMuted) return;
-    try {
-      const el = audioRef.current;
-      if (el) {
-        if (el.paused || el.ended) {
-          el.currentTime = 0;
-          el.play().catch(() => {});
-        } else {
-          // Clone for polyphonic overlaps
-          const clone = el.cloneNode() as HTMLAudioElement;
-          clone.volume = el.volume || fallbackVolume;
-          clone.play().catch(() => {});
-        }
-      }
-    } catch {
-      // Audio play error handled
-    }
-  }, [isMuted]);
-
   const playHover = useCallback(() => {
-    playAudioElement(hoverAudioRef, 0.45);
-  }, [playAudioElement]);
+    playInstantBuffer("hover", 0.55);
+  }, [playInstantBuffer]);
 
   const playClick = useCallback(() => {
-    playAudioElement(clickAudioRef, 0.9);
-  }, [playAudioElement]);
+    playInstantBuffer("click", 0.95);
+  }, [playInstantBuffer]);
 
   const playReveal = useCallback(() => {
-    playAudioElement(modalOpenAudioRef, 0.85);
-  }, [playAudioElement]);
+    playInstantBuffer("reveal", 0.9);
+  }, [playInstantBuffer]);
 
   const playModalClose = useCallback(() => {
-    playAudioElement(modalCloseAudioRef, 0.6);
-  }, [playAudioElement]);
+    playInstantBuffer("close", 0.7);
+  }, [playInstantBuffer]);
 
   const playTabSwitch = useCallback(() => {
-    playAudioElement(tabAudioRef, 0.8);
-  }, [playAudioElement]);
+    playInstantBuffer("tab", 0.85);
+  }, [playInstantBuffer]);
 
   const playSuccess = useCallback(() => {
-    playAudioElement(successAudioRef, 0.95);
-  }, [playAudioElement]);
+    playInstantBuffer("success", 1.0);
+  }, [playInstantBuffer]);
 
   // Signature Signboard Studio Emblem Resonance Audio
   const playLogoSound = useCallback(() => {
-    // Logo touch plays with priority
-    playAudioElement(logoAudioRef, 1.0);
-
-    // Also trigger synthesized sub-impact via Web Audio
-    try {
-      const ctx = getAudioContext();
-      if (!ctx) return;
-      const triggerSynth = () => {
-        const now = ctx.currentTime;
-        const strikeOsc = ctx.createOscillator();
-        const strikeGain = ctx.createGain();
-        strikeOsc.type = "sine";
-        strikeOsc.frequency.setValueAtTime(140, now);
-        strikeOsc.frequency.exponentialRampToValueAtTime(45, now + 0.16);
-        strikeGain.gain.setValueAtTime(0.2, now);
-        strikeGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.18);
-        strikeOsc.connect(strikeGain);
-        strikeGain.connect(ctx.destination);
-        strikeOsc.start(now);
-        strikeOsc.stop(now + 0.18);
-      };
-
-      if (ctx.state === "suspended") {
-        ctx.resume().then(triggerSynth).catch(() => {});
-      } else {
-        triggerSynth();
-      }
-    } catch {
-      // Audio error ignored
-    }
-  }, [getAudioContext, playAudioElement]);
+    playInstantBuffer("logo", 1.0);
+  }, [playInstantBuffer]);
 
   return (
     <SoundContext.Provider
