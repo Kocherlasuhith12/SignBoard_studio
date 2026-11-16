@@ -64,12 +64,36 @@ export function SignboardMonogram({
       whileTap={{ scale: 0.94 }}
       style={{ transformOrigin: "top center" }}
       title="Touch Signboard Emblem for acoustic chime"
-      data-cursor-text="RING"
+      data-cursor-text="CHIME"
     >
+      {/* Visual Acoustic Ripple Shockwaves when touched */}
+      {isSwinging && (
+        <>
+          <motion.div
+            initial={{ scale: 0.7, opacity: 0.95 }}
+            animate={{ scale: 2.2, opacity: 0 }}
+            transition={{ duration: 0.85, ease: "easeOut" }}
+            className="absolute inset-0 rounded-full border-2 border-[#F06A28] pointer-events-none shadow-[0_0_20px_#F06A28]"
+          />
+          <motion.div
+            initial={{ scale: 0.85, opacity: 0.8 }}
+            animate={{ scale: 3.0, opacity: 0 }}
+            transition={{ duration: 1.1, delay: 0.1, ease: "easeOut" }}
+            className="absolute inset-0 rounded-full border border-[#B5121B] pointer-events-none shadow-[0_0_25px_#B5121B]"
+          />
+          <motion.div
+            initial={{ scale: 1.0, opacity: 0.6 }}
+            animate={{ scale: 3.8, opacity: 0 }}
+            transition={{ duration: 1.3, delay: 0.2, ease: "easeOut" }}
+            className="absolute inset-0 rounded-full border border-orange-400/40 pointer-events-none"
+          />
+        </>
+      )}
+
       {/* Ambient Red/Orange Volumetric Glow */}
       {(glow || isSwinging) && (
         <motion.div
-          animate={isSwinging ? { scale: [1, 1.25, 1], opacity: [0.7, 1, 0.7] } : undefined}
+          animate={isSwinging ? { scale: [1, 1.35, 1], opacity: [0.7, 1, 0.7] } : undefined}
           transition={{ duration: 0.9 }}
           className="absolute inset-0 rounded-xl blur-xl pointer-events-none opacity-70 group-hover:opacity-100 transition-opacity duration-500"
           style={{

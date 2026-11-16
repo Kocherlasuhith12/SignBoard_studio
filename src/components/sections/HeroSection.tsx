@@ -71,8 +71,14 @@ export function HeroSection({ onExploreClick, onStartProjectClick }: HeroSection
           className="mb-8 flex flex-col items-center"
         >
           {/* Official Signboard Emblem with Volumetric Glow & Pendulum Physics */}
-          <div className="mb-4">
+          <div className="mb-2">
             <SignboardMonogram className="w-28 h-28 sm:w-36 sm:h-36" glow animated />
+          </div>
+
+          {/* Interactive Audio Hint */}
+          <div className="flex items-center gap-2 font-mono text-[9px] uppercase tracking-[0.25em] text-neutral-400 mb-4 py-1 px-3 rounded-full bg-white/[0.03] border border-white/5">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#F06A28] animate-ping" />
+            <span>TOUCH EMBLEM FOR ACOUSTIC CHIME</span>
           </div>
 
           {/* Complete SIGNBOARD Wordmark Matching Official Branding */}

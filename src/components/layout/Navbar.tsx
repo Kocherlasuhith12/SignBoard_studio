@@ -113,30 +113,40 @@ export function Navbar({ onStartProjectClick }: { onStartProjectClick?: () => vo
               <span>HYDERABAD {mounted && currentTime ? currentTime : "05:00:00"} IST</span>
             </div>
 
-            {/* Studio Sound Toggle Button */}
+            {/* Studio Hi-Fi Audio Control Widget */}
             <button
               onClick={() => {
                 toggleSound();
               }}
               onMouseEnter={playHover}
-              className="flex items-center gap-2 font-mono text-[11px] text-neutral-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 px-3 py-1.5 rounded-full transition-all group"
+              className={`flex items-center gap-2.5 font-mono text-xs px-3.5 py-1.5 rounded-full border transition-all duration-300 shadow-md ${
+                isMuted
+                  ? "bg-white/[0.04] hover:bg-white/[0.08] border-white/10 text-neutral-400 hover:text-white"
+                  : "bg-gradient-to-r from-[#B5121B]/20 to-[#F06A28]/20 hover:from-[#B5121B]/30 hover:to-[#F06A28]/30 border-[#F06A28]/40 text-white shadow-[0_0_15px_rgba(240,106,40,0.3)] ring-1 ring-[#F06A28]/40"
+              }`}
               title={isMuted ? "Enable studio sound effects" : "Mute sound effects"}
               aria-label={isMuted ? "Enable studio sound effects" : "Mute sound effects"}
             >
               {isMuted ? (
                 <>
-                  <VolumeX className="w-3.5 h-3.5 text-neutral-400 group-hover:text-white transition-colors" />
-                  <span className="text-[10px] tracking-wider uppercase text-neutral-400">SOUND: OFF</span>
+                  <VolumeX className="w-3.5 h-3.5 text-neutral-400" />
+                  <span className="text-[10px] tracking-widest uppercase font-semibold">AUDIO: OFF</span>
                 </>
               ) : (
                 <>
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#F06A28] opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-[#F06A28]" />
+                  </span>
                   <Volume2 className="w-3.5 h-3.5 text-[#F06A28]" />
-                  <span className="text-[10px] tracking-wider uppercase text-[#F06A28] font-semibold">SOUND: ON</span>
-                  {/* Subtle 3-bar Audio Waveform Equalizer */}
-                  <span className="flex items-end gap-[2px] h-2.5">
-                    <span className="w-[2px] h-full bg-[#F06A28] animate-pulse" />
-                    <span className="w-[2px] h-2 bg-[#F06A28] animate-pulse delay-75" />
-                    <span className="w-[2px] h-3 bg-[#F06A28] animate-pulse delay-150" />
+                  <span className="text-[10px] tracking-widest uppercase text-white font-bold">HI-FI AUDIO</span>
+                  {/* Dynamic 5-bar Sound Waveform */}
+                  <span className="flex items-end gap-[2px] h-3 ml-0.5">
+                    <span className="w-[2px] h-3 bg-[#F06A28] animate-pulse" />
+                    <span className="w-[2px] h-2 bg-orange-400 animate-pulse delay-75" />
+                    <span className="w-[2px] h-3.5 bg-red-400 animate-pulse delay-150" />
+                    <span className="w-[2px] h-1.5 bg-[#F06A28] animate-pulse delay-100" />
+                    <span className="w-[2px] h-2.5 bg-orange-300 animate-pulse delay-200" />
                   </span>
                 </>
               )}
@@ -223,6 +233,33 @@ export function Navbar({ onStartProjectClick }: { onStartProjectClick?: () => vo
             </div>
 
             <div className="flex flex-col gap-4 pt-6 border-t border-white/10">
+              {/* Mobile Audio Equalizer Toggle Banner */}
+              <button
+                onClick={() => {
+                  toggleSound();
+                }}
+                className={`w-full p-4 rounded-2xl border flex items-center justify-between font-mono text-xs transition-all ${
+                  isMuted
+                    ? "bg-white/[0.03] border-white/10 text-neutral-400"
+                    : "bg-[#F06A28]/15 border-[#F06A28]/40 text-white shadow-[0_0_20px_rgba(240,106,40,0.2)]"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  {isMuted ? <VolumeX className="w-5 h-5 text-neutral-400" /> : <Volume2 className="w-5 h-5 text-[#F06A28]" />}
+                  <div className="text-left">
+                    <div className="font-bold uppercase tracking-wider text-white">STUDIO HI-FI AUDIO</div>
+                    <div className="text-[10px] text-neutral-400 uppercase tracking-widest">{isMuted ? "TOUCH TO ACTIVATE AUDIO" : "AUDIO SYSTEM ONLINE (432 Hz)"}</div>
+                  </div>
+                </div>
+                {!isMuted && (
+                  <span className="flex items-end gap-1 h-4">
+                    <span className="w-1 h-full bg-[#F06A28] animate-pulse" />
+                    <span className="w-1 h-2.5 bg-[#F06A28] animate-pulse delay-75" />
+                    <span className="w-1 h-3.5 bg-[#F06A28] animate-pulse delay-150" />
+                  </span>
+                )}
+              </button>
+
               <button
                 onClick={() => {
                   playClick();

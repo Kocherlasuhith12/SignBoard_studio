@@ -38,15 +38,15 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
 
     try {
       logoAudioRef.current = new Audio(`${basePath}/audio/logo-chime.wav`);
-      logoAudioRef.current.volume = 0.85;
+      logoAudioRef.current.volume = 1.0;
       logoAudioRef.current.preload = "auto";
 
       clickAudioRef.current = new Audio(`${basePath}/audio/click.wav`);
-      clickAudioRef.current.volume = 0.5;
+      clickAudioRef.current.volume = 0.85;
       clickAudioRef.current.preload = "auto";
 
       hoverAudioRef.current = new Audio(`${basePath}/audio/hover.wav`);
-      hoverAudioRef.current.volume = 0.25;
+      hoverAudioRef.current.volume = 0.55;
       hoverAudioRef.current.preload = "auto";
     } catch {
       // Audio preload error ignored
