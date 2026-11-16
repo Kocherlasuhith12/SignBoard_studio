@@ -6,9 +6,7 @@ import gsap from "gsap";
 import { useSound } from "@/context/SoundContext";
 
 interface CinematicParticleIntroProps {
-  onComplete: () => void;
-  onExplore?: () => void;
-  onStartProject?: () => void;
+  onComplete?: () => void;
 }
 
 // Custom Vertex Shader with 3D organic curl interpolation and depth attenuation
@@ -93,23 +91,22 @@ const vertexShader = `
       col = mix(aColor2, aColor3, eased);
 
     } else {
-      // STAGE 5: Cinematic Particle Outward Dispersion
+      // STAGE 5: Autonomous Particle Outward Dispersion
       float s = uProgress - 3.0; // 0.0 -> 1.0
-      float eased = s * s * (3.0 - 2.0 * s); // smoothstep
+      float eased = s * s * (3.0 - 2.0 * s);
 
       vec3 dispersalDir = normalize(aTarget3 + vec3(aRandom.x - 0.5, aRandom.y - 0.5, aRandom.z - 0.5) * 3.5);
-      // Explode radially and push past camera
       pos = aTarget3 + dispersalDir * (eased * 52.0) + getCurl(aTarget3, aRandom.x) * (eased * 14.0);
-      pos.z += eased * 35.0; // depth push
+      pos.z += eased * 35.0;
       col = aColor3;
       alpha = max(0.0, 1.0 - eased * 1.4);
     }
 
-    // Interactive user skip dispersal modifier
+    // Scroll-driven or interactive dispersal modifier
     if (uDisperse > 0.0) {
       vec3 dispDir = normalize(pos + vec3(aRandom.x - 0.5, aRandom.y - 0.5, aRandom.z - 0.5) * 4.0);
-      pos += dispDir * (uDisperse * 60.0);
-      alpha *= max(0.0, 1.0 - uDisperse * 1.6);
+      pos += dispDir * (uDisperse * 55.0);
+      alpha *= max(0.0, 1.0 - uDisperse * 1.5);
     }
 
     vColor = col;
@@ -131,32 +128,30 @@ const fragmentShader = `
   varying float vAlpha;
 
   void main() {
-    // Distance from center of point sprite
     vec2 coord = gl_PointCoord - vec2(0.5);
     float dist = length(coord);
     if (dist > 0.5) discard;
 
-    // Luminous Gaussian falloff with hot white center
     float falloff = smoothstep(0.5, 0.0, dist);
     float glow = pow(falloff, 1.7);
     float finalAlpha = glow * vAlpha * uOpacity;
 
-    // White-hot core highlight
     vec3 coreColor = mix(vColor, vec3(1.0, 1.0, 1.0), pow(falloff, 4.0) * 0.6);
 
     gl_FragColor = vec4(coreColor, finalAlpha);
   }
 `;
 
-export function CinematicParticleIntro({
-  onComplete,
-}: CinematicParticleIntroProps) {
+export function CinematicParticleIntro({ onComplete }: CinematicParticleIntroProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [stageName, setStageName] = useState<string>("01 // PARTICLE ARRIVAL");
-  const [progressPercent, setProgressPercent] = useState<number>(0);
+  const [scrollProgress, setScrollProgress] = useState<number>(0);
   const [isFadingOut, setIsFadingOut] = useState<boolean>(false);
   const timelineRef = useRef<gsap.core.Timeline | null>(null);
+
+  const autoOpacityRef = useRef(1.0);
+  const autoDisperseRef = useRef(0.0);
+
   const uniformsRef = useRef<{
     uProgress: { value: number };
     uTime: { value: number };
@@ -174,7 +169,30 @@ export function CinematicParticleIntro({
   const { playLogoSound, isMuted } = useSound();
   const hasPlayedChimeRef = useRef(false);
 
-  // Skip Intro handler
+  // Scroll listener: As user scrolls down, the intro slowly disperses & disappears
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollY = window.scrollY;
+      // Disappears smoothly over the first 350px of scrolling
+      const threshold = Math.min(window.innerHeight * 0.55, 380);
+      const ratio = Math.min(1.0, Math.max(0.0, scrollY / threshold));
+      setScrollProgress(ratio);
+
+      if (uniformsRef.current) {
+        const combinedDisperse = Math.max(autoDisperseRef.current, ratio * 1.5);
+        const combinedOpacity = Math.max(0.0, (1.0 - ratio * 1.15) * autoOpacityRef.current);
+        uniformsRef.current.uDisperse.value = combinedDisperse;
+        uniformsRef.current.uOpacity.value = combinedOpacity;
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Skip handler
   const handleSkip = useCallback(() => {
     if (isFadingOut) return;
     setIsFadingOut(true);
@@ -183,19 +201,18 @@ export function CinematicParticleIntro({
       timelineRef.current.kill();
     }
 
-    // Rapid cinematic dispersal
     gsap.to(uniformsRef.current.uDisperse, {
       value: 1.0,
-      duration: 0.38,
+      duration: 0.4,
       ease: "power2.out",
     });
 
     gsap.to(uniformsRef.current.uOpacity, {
       value: 0.0,
-      duration: 0.38,
+      duration: 0.4,
       ease: "power2.inOut",
       onComplete: () => {
-        onComplete();
+        onComplete?.();
       },
     });
   }, [isFadingOut, onComplete]);
@@ -231,7 +248,6 @@ export function CinematicParticleIntro({
     // 1. Setup Three.js Scene, Camera, Renderer
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-    // Move camera back slightly on mobile portrait to fit wider text
     camera.position.z = isMobile ? 38 : 32;
 
     const renderer = new THREE.WebGLRenderer({
@@ -246,8 +262,6 @@ export function CinematicParticleIntro({
     uniformsRef.current.uPixelRatio.value = pixelRatio;
 
     // 2. Coordinate Sampling from Offscreen Canvases
-    // -------------------------------------------------------------
-    // Helper to sample pixels where alpha > threshold
     const sampleCanvasPixels = (
       drawFn: (ctx: CanvasRenderingContext2D, w: number, h: number) => void,
       w: number,
@@ -271,7 +285,6 @@ export function CinematicParticleIntro({
       const imgData = ctx.getImageData(0, 0, w, h);
       const pixels: { x: number; y: number; r: number; g: number; b: number }[] = [];
 
-      // Scan step
       const step = 2;
       for (let y = 0; y < h; y += step) {
         for (let x = 0; x < w; x += step) {
@@ -291,13 +304,11 @@ export function CinematicParticleIntro({
 
       const positions = new Float32Array(count * 3);
       const colors = new Float32Array(count * 3);
-
       const hasPixels = pixels.length > 0;
 
       for (let i = 0; i < count; i++) {
         const i3 = i * 3;
         if (hasPixels && i < pixels.length * 1.5) {
-          // Sample from drawn pixels with delicate organic jitter
           const p = pixels[i % pixels.length];
           const jitterX = (Math.random() - 0.5) * 0.12;
           const jitterY = (Math.random() - 0.5) * 0.12;
@@ -311,7 +322,6 @@ export function CinematicParticleIntro({
           colors[i3 + 1] = p.g;
           colors[i3 + 2] = p.b;
         } else {
-          // Extra particles form subtle orbiting halo aura around the shape
           const angle = Math.random() * Math.PI * 2;
           const radius = Math.random() * (worldScale.x * 0.65) + 3.0;
           positions[i3] = Math.cos(angle) * radius;
@@ -336,29 +346,20 @@ export function CinematicParticleIntro({
         ctx.translate((w - emblemSize) / 2, (h - emblemSize) / 2);
         ctx.scale(emblemSize / 120, emblemSize / 120);
 
-        // Official Deep Red Palette (#C9161F)
         ctx.fillStyle = "#C9161F";
-
-        // 1. Top Hanging Mounting Bracket
         ctx.fillRect(18, 18, 84, 5.5);
-        // Suspension Pegs
         ctx.fillRect(30, 23.5, 5, 8.5);
         ctx.fillRect(85, 23.5, 5, 8.5);
 
-        // 2. The Architectural 'S' Sections
-        // Top section
         const p1 = new Path2D("M 26 32 H 94 V 58 H 78 V 46 H 42 V 46 L 26 46 Z");
         ctx.fill(p1);
 
-        // Central Slanted Diagonal Beam
         const p2 = new Path2D("M 38 46 L 82 72 L 72 84 L 28 58 Z");
         ctx.fill(p2);
 
-        // Bottom section
         const p3 = new Path2D("M 26 74 H 42 V 86 H 78 V 98 H 26 V 74 Z");
         ctx.fill(p3);
 
-        // 3. Burnt Orange Accent Bars (#F06A28)
         ctx.fillStyle = "#F06A28";
         ctx.fillRect(54, 46, 26, 4.5);
         ctx.fillRect(40, 79, 26, 4.5);
@@ -379,11 +380,9 @@ export function CinematicParticleIntro({
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
 
-        // Line 1: SIGNBOARD
         ctx.fillStyle = "#FFFFFF";
         const titleFont = isMobile ? "900 68px serif" : "900 84px serif";
         ctx.font = titleFont;
-        // Draw with wide letter spacing
         const titleText = "SIGNBOARD";
         const letterSpacing = isMobile ? 14 : 20;
         let totalWidth = 0;
@@ -400,7 +399,6 @@ export function CinematicParticleIntro({
           startX += charWidth + letterSpacing;
         }
 
-        // Line 2: CREATIVE DIGITAL STUDIO
         ctx.fillStyle = "#F06A28";
         const subFont = isMobile ? "600 22px monospace" : "600 26px monospace";
         ctx.font = subFont;
@@ -435,7 +433,6 @@ export function CinematicParticleIntro({
         ctx.textBaseline = "middle";
 
         if (isMobile) {
-          // 3-line layout for mobile portrait
           ctx.fillStyle = "#EDEDED";
           ctx.font = "800 48px serif";
           ctx.fillText("WE MAKE", w / 2, h * 0.28);
@@ -445,12 +442,10 @@ export function CinematicParticleIntro({
           ctx.font = "italic 800 44px serif";
           ctx.fillText("IMPOSSIBLE TO IGNORE.", w / 2, h * 0.70);
         } else {
-          // 2-line layout for desktop
           ctx.font = "800 64px serif";
           ctx.fillStyle = "#EDEDED";
           ctx.fillText("WE MAKE BUSINESSES", w / 2, h * 0.38);
 
-          // "IMPOSSIBLE" in brand orange, "TO IGNORE." in white
           const line2Y = h * 0.62;
           ctx.font = "italic 800 66px serif";
           ctx.fillStyle = "#F06A28";
@@ -485,7 +480,6 @@ export function CinematicParticleIntro({
       const i3 = i * 3;
       const i4 = i * 4;
 
-      // Dispersed spherical and radial arrival distribution across 3D depth
       const radius = 25.0 + Math.random() * 45.0;
       const theta = Math.random() * Math.PI * 2;
       const phi = (Math.random() - 0.5) * Math.PI;
@@ -494,10 +488,10 @@ export function CinematicParticleIntro({
       aOrigin[i3 + 1] = radius * Math.sin(phi);
       aOrigin[i3 + 2] = (Math.random() - 0.5) * 50.0 - 15.0;
 
-      aRandom[i4] = Math.random(); // noise seed X
-      aRandom[i4 + 1] = Math.random(); // noise seed Y
-      aRandom[i4 + 2] = Math.random(); // size variance
-      aRandom[i4 + 3] = Math.random(); // stagger offset
+      aRandom[i4] = Math.random();
+      aRandom[i4 + 1] = Math.random();
+      aRandom[i4 + 2] = Math.random();
+      aRandom[i4 + 3] = Math.random();
     }
 
     // 4. Construct Buffer Geometry
@@ -525,95 +519,76 @@ export function CinematicParticleIntro({
     const particles = new THREE.Points(geometry, material);
     scene.add(particles);
 
-    // 6. GSAP Choreographed Master Timeline (< 5.0 seconds total)
+    // 6. GSAP Choreographed Master Timeline
     const tl = gsap.timeline({
       onUpdate: () => {
         const val = uniformsRef.current.uProgress.value;
-        const pct = Math.min(100, Math.round((val / 4.0) * 100));
-        setProgressPercent(pct);
-
-        if (val < 1.0) {
-          setStageName("01 // PARTICLE ARRIVAL");
-        } else if (val < 2.0) {
-          setStageName("02 // LOGO FORMATION");
-          // Play acoustic logo chime when emblem forms
-          if (!hasPlayedChimeRef.current && !isMuted) {
-            hasPlayedChimeRef.current = true;
-            playLogoSound();
-          }
-        } else if (val < 3.0) {
-          setStageName("03 // BRAND IDENTITY");
-        } else if (val < 3.8) {
-          setStageName("04 // MISSION HEADLINE");
-        } else {
-          setStageName("05 // CINEMATIC REVEAL");
+        if (val >= 1.0 && !hasPlayedChimeRef.current && !isMuted) {
+          hasPlayedChimeRef.current = true;
+          playLogoSound();
         }
       },
       onComplete: () => {
-        onComplete();
+        onComplete?.();
       },
     });
 
     timelineRef.current = tl;
 
-    // Timeline choreography:
-    // 0.0s - 1.1s: Arrival into Emblem
+    // Stage 1 -> 2: Particle Arrival & Assemble into Emblem
     tl.to(uniformsRef.current.uProgress, {
       value: 1.0,
       duration: 1.15,
       ease: "power2.inOut",
     });
 
-    // 1.15s - 1.55s: Emblem Linger (0.4s hold for appreciation)
-    tl.to({}, { duration: 0.4 });
+    // Emblem Linger
+    tl.to({}, { duration: 0.45 });
 
-    // 1.55s - 2.45s: Morph into Brand Wordmark ("SIGNBOARD")
+    // Stage 2 -> 3: Morph from Emblem into Brand Wordmark ("SIGNBOARD")
     tl.to(uniformsRef.current.uProgress, {
       value: 2.0,
-      duration: 0.9,
+      duration: 0.95,
       ease: "power2.inOut",
     });
 
-    // 2.45s - 2.85s: Brand Wordmark Linger (0.4s hold)
+    // Brand Wordmark Linger
     tl.to({}, { duration: 0.4 });
 
-    // 2.85s - 3.75s: Morph into Headline ("WE MAKE BUSINESSES IMPOSSIBLE TO IGNORE")
+    // Stage 3 -> 4: Morph into Master Headline ("WE MAKE BUSINESSES IMPOSSIBLE TO IGNORE")
     tl.to(uniformsRef.current.uProgress, {
       value: 3.0,
-      duration: 0.9,
+      duration: 0.95,
       ease: "power2.inOut",
     });
 
-    // 3.75s - 4.25s: Headline Linger (0.5s hold)
-    tl.to({}, { duration: 0.5 });
+    // Headline Linger
+    tl.to({}, { duration: 1.2 });
 
-    // 4.25s - 4.85s: Stage 5 - Cinematic Dispersion and Camera push
+    // Stage 5: Cinematic Dispersion and Dissolve (if user hasn't scrolled yet)
     tl.to(uniformsRef.current.uProgress, {
       value: 4.0,
-      duration: 0.65,
+      duration: 0.7,
       ease: "power3.in",
     });
 
-    // Gentle camera push
     tl.to(
-      camera.position,
+      autoOpacityRef,
       {
-        z: camera.position.z - 4.0,
-        duration: 0.65,
-        ease: "power2.in",
-      },
-      "-=0.65"
-    );
-
-    // Overlay Opacity Dissolve at the very tail
-    tl.to(
-      uniformsRef.current.uOpacity,
-      {
-        value: 0.0,
-        duration: 0.35,
+        current: 0.0,
+        duration: 0.5,
         ease: "power2.out",
+        onUpdate: () => {
+          if (uniformsRef.current) {
+            const currentScrollRatio = Math.min(1.0, Math.max(0.0, window.scrollY / 380));
+            uniformsRef.current.uOpacity.value = Math.max(
+              0.0,
+              (1.0 - currentScrollRatio * 1.15) * autoOpacityRef.current
+            );
+          }
+        },
       },
-      "-=0.35"
+      "-=0.5"
     );
 
     // 7. Render Loop
@@ -626,7 +601,6 @@ export function CinematicParticleIntro({
       const delta = clock.getDelta();
       uniformsRef.current.uTime.value += delta;
 
-      // Subtle slow rotation of the particle system for organic spatial depth
       particles.rotation.y = Math.sin(uniformsRef.current.uTime.value * 0.25) * 0.04;
       particles.rotation.x = Math.cos(uniformsRef.current.uTime.value * 0.2) * 0.02;
 
@@ -665,12 +639,22 @@ export function CinematicParticleIntro({
     };
   }, [isMuted, onComplete, playLogoSound]);
 
+  // Compute container opacity from scroll and dismissal
+  const containerOpacity = isFadingOut
+    ? 0
+    : Math.max(0, 1.0 - scrollProgress * 1.18);
+  const isScrolledOut = scrollProgress >= 0.95 || containerOpacity <= 0.02;
+
   return (
     <div
       ref={containerRef}
-      className={`fixed inset-0 z-[100] flex flex-col justify-between bg-[#070707] text-white overflow-hidden select-none transition-opacity duration-300 ${
-        isFadingOut ? "opacity-0 pointer-events-none" : "opacity-100"
-      }`}
+      className="fixed inset-0 z-40 flex flex-col justify-between bg-[#070707] text-white overflow-hidden select-none"
+      style={{
+        opacity: containerOpacity,
+        pointerEvents: isScrolledOut ? "none" : "auto",
+        visibility: isScrolledOut ? "hidden" : "visible",
+        transition: isFadingOut ? "opacity 0.4s ease-out" : "opacity 0.08s ease-out",
+      }}
       aria-label="Signboard Studio Cinematic Opening Particle Experience"
     >
       {/* Three.js WebGL Particle Canvas */}
@@ -681,14 +665,14 @@ export function CinematicParticleIntro({
 
       {/* Atmospheric Ambient Red/Orange Volumetric Glow */}
       <div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[650px] sm:w-[950px] sm:h-[950px] rounded-full pointer-events-none blur-[140px] opacity-40 transition-opacity duration-1000"
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[650px] sm:w-[950px] sm:h-[950px] rounded-full pointer-events-none blur-[140px] opacity-40"
         style={{
           background:
             "radial-gradient(circle, rgba(181,18,27,0.45) 0%, rgba(240,106,40,0.2) 40%, rgba(7,7,7,0) 70%)",
         }}
       />
 
-      {/* Top Bar: Brand Identifier & Skip Control */}
+      {/* Top Bar: Brand Monogram Identifier & Minimalist Skip Pill */}
       <header className="relative z-30 w-full max-w-7xl mx-auto px-6 sm:px-8 pt-6 sm:pt-8 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <span className="w-2 h-2 rounded-full bg-[#F06A28] animate-ping" />
@@ -697,53 +681,26 @@ export function CinematicParticleIntro({
           </span>
         </div>
 
-        {/* Skip Intro Pill with Circular Progress Tracker */}
+        {/* Minimalist Skip Pill */}
         <button
           onClick={handleSkip}
-          className="group relative flex items-center gap-3 px-4 py-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/15 hover:border-[#F06A28]/50 text-neutral-300 hover:text-white transition-all duration-300 backdrop-blur-md shadow-[0_0_20px_rgba(0,0,0,0.5)] cursor-pointer"
+          className="group relative flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 hover:border-white/25 text-neutral-400 hover:text-white transition-all duration-300 backdrop-blur-md cursor-pointer"
           title="Skip intro experience and enter website"
           aria-label="Skip intro experience"
         >
-          {/* Progress Ring */}
-          <div className="relative w-4 h-4 flex items-center justify-center">
-            <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
-              <path
-                className="text-white/20"
-                strokeWidth="4"
-                stroke="currentColor"
-                fill="none"
-                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-              />
-              <path
-                className="text-[#F06A28] transition-all duration-100"
-                strokeDasharray={`${progressPercent}, 100`}
-                strokeWidth="4"
-                strokeLinecap="round"
-                stroke="currentColor"
-                fill="none"
-                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-              />
-            </svg>
-          </div>
-
-          <span className="font-mono text-[11px] tracking-[0.2em] uppercase font-semibold">
-            SKIP INTRO <span className="text-neutral-300 text-[10px]">[ESC]</span>
+          <span className="font-mono text-[10px] tracking-[0.2em] uppercase font-medium">
+            SKIP <span className="text-neutral-500">[ESC]</span>
           </span>
         </button>
       </header>
 
-      {/* Bottom Bar: Telemetry & Stage Indicator */}
-      <footer className="relative z-30 w-full max-w-7xl mx-auto px-6 sm:px-8 pb-6 sm:pb-8 flex flex-col sm:flex-row items-center justify-between font-mono text-[11px] tracking-widest text-neutral-400 uppercase gap-3">
-        <div className="flex items-center gap-2">
-          <span className="text-[#F06A28]">{stageName}</span>
+      {/* Bottom Center: Editorial Scroll Prompt Indicator */}
+      <div className="relative z-30 w-full max-w-7xl mx-auto px-6 sm:px-8 pb-6 sm:pb-8 flex flex-col items-center justify-center gap-2 pointer-events-none">
+        <div className="flex flex-col items-center gap-1.5 text-neutral-400 font-mono text-[10px] tracking-[0.3em] uppercase">
+          <span>SCROLL DOWN TO ENTER</span>
+          <div className="w-[1.5px] h-6 bg-gradient-to-b from-[#F06A28] via-[#B5121B] to-transparent animate-pulse" />
         </div>
-
-        <div className="flex items-center gap-6 text-[10px] sm:text-[11px]">
-          <span>WEBGL 2.0 // GPU PARTICLES</span>
-          <span className="text-neutral-400">/</span>
-          <span>HYDERABAD, INDIA</span>
-        </div>
-      </footer>
+      </div>
     </div>
   );
 }

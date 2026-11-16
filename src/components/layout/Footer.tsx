@@ -5,7 +5,7 @@ import { ArrowUp, Instagram, Github, Linkedin, Twitter, Sparkles } from "lucide-
 import { SignboardLogo } from "@/components/ui/SignboardLogo";
 import { useSound } from "@/context/SoundContext";
 
-export function Footer({ onReplayIntro }: { onReplayIntro?: () => void }) {
+export function Footer() {
   const { playHover, playClick } = useSound();
 
   const scrollToTop = () => {
@@ -90,21 +90,6 @@ export function Footer({ onReplayIntro }: { onReplayIntro?: () => void }) {
                   </a>
                 </li>
               ))}
-              {onReplayIntro && (
-                <li className="pt-1">
-                  <button
-                    onClick={() => {
-                      playClick();
-                      onReplayIntro();
-                    }}
-                    onMouseEnter={playHover}
-                    className="font-mono text-xs uppercase tracking-wider text-[#F06A28] hover:text-white transition-colors flex items-center gap-1.5 group cursor-pointer"
-                  >
-                    <Sparkles className="w-3.5 h-3.5 text-[#F06A28] group-hover:rotate-12 transition-transform" />
-                    <span>Replay Intro</span>
-                  </button>
-                </li>
-              )}
             </ul>
           </div>
 

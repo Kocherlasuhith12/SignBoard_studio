@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { HeroSection } from "@/components/sections/HeroSection";
 import { BrandIntroduction } from "@/components/sections/BrandIntroduction";
@@ -13,67 +13,29 @@ import { Footer } from "@/components/layout/Footer";
 import { CinematicParticleIntro } from "@/components/intro/CinematicParticleIntro";
 
 export default function Home() {
-  const [showIntro, setShowIntro] = useState<boolean>(false);
-
-  // Check session storage and prefers-reduced-motion on mount
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    // Respect prefers-reduced-motion
-    const prefersReducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
-
-    if (prefersReducedMotion) {
-      return;
-    }
-
-    // Run intro once per browser session by default
-    const hasViewed = sessionStorage.getItem("signboard_intro_viewed");
-    if (!hasViewed) {
-      setShowIntro(true);
-    }
-  }, []);
-
-  const handleIntroComplete = useCallback(() => {
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem("signboard_intro_viewed", "true");
-    }
-    setShowIntro(false);
-  }, []);
-
-  const handleReplayIntro = useCallback(() => {
-    setShowIntro(true);
-  }, []);
+  const [introDismissed, setIntroDismissed] = useState<boolean>(false);
 
   const handleExplore = () => {
-    setShowIntro(false);
+    setIntroDismissed(true);
     const target = document.querySelector("#about");
     target?.scrollIntoView({ behavior: "smooth" });
   };
 
   const handleStartProject = () => {
-    setShowIntro(false);
+    setIntroDismissed(true);
     const target = document.querySelector("#contact");
     target?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
     <div className="relative min-h-screen bg-[#070707] text-[#EDEDED] overflow-x-hidden">
-      {/* Cinematic Interactive Particle Intro Experience (WebGL + Three.js + GSAP) */}
-      {showIntro && (
-        <CinematicParticleIntro
-          onComplete={handleIntroComplete}
-          onExplore={handleExplore}
-          onStartProject={handleStartProject}
-        />
+      {/* Full-Screen Cinematic Opening Particle Experience: Shows when window opens, slowly disappears as you scroll down */}
+      {!introDismissed && (
+        <CinematicParticleIntro onComplete={() => setIntroDismissed(true)} />
       )}
 
-      {/* Main Website Structure - Rendered in DOM Immediately for SEO and Instant Accessibility */}
-      <Navbar
-        onStartProjectClick={handleStartProject}
-        onReplayIntro={handleReplayIntro}
-      />
+      {/* Main Website Structure - 100% Present and Accessible to Search Engines and Screen Readers */}
+      <Navbar onStartProjectClick={handleStartProject} />
 
       <HeroSection
         onExploreClick={handleExplore}
@@ -92,7 +54,7 @@ export default function Home() {
 
       <ContactSection />
 
-      <Footer onReplayIntro={handleReplayIntro} />
+      <Footer />
     </div>
   );
 }
