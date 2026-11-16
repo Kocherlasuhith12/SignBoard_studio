@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { HeroSection } from "@/components/sections/HeroSection";
 import { BrandIntroduction } from "@/components/sections/BrandIntroduction";
@@ -13,28 +13,78 @@ import { Footer } from "@/components/layout/Footer";
 import { CinematicParticleIntro } from "@/components/intro/CinematicParticleIntro";
 
 export default function Home() {
-  const [introDismissed, setIntroDismissed] = useState<boolean>(false);
+  const [showIntro, setShowIntro] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    // 1. WebGL Graceful Fallback Detection
+    const hasWebGL = (() => {
+      try {
+        const c = document.createElement("canvas");
+        return !!(
+          window.WebGLRenderingContext &&
+          (c.getContext("webgl2") || c.getContext("webgl"))
+        );
+      } catch {
+        return false;
+      }
+    })();
+
+    if (!hasWebGL) {
+      return;
+    }
+
+    // 2. Respect prefers-reduced-motion
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+
+    if (prefersReducedMotion) {
+      return;
+    }
+
+    // 3. Play once per browser session by default
+    const hasViewed = sessionStorage.getItem("signboard_intro_viewed");
+    if (!hasViewed) {
+      setShowIntro(true);
+    }
+  }, []);
+
+  const handleIntroComplete = useCallback(() => {
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("signboard_intro_viewed", "true");
+    }
+    setShowIntro(false);
+  }, []);
+
+  const handleReplayIntro = useCallback(() => {
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "instant" });
+    }
+    setShowIntro(true);
+  }, []);
 
   const handleExplore = () => {
-    setIntroDismissed(true);
+    handleIntroComplete();
     const target = document.querySelector("#about");
     target?.scrollIntoView({ behavior: "smooth" });
   };
 
   const handleStartProject = () => {
-    setIntroDismissed(true);
+    handleIntroComplete();
     const target = document.querySelector("#contact");
     target?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
     <div className="relative min-h-screen bg-[#070707] text-[#EDEDED] overflow-x-hidden">
-      {/* Full-Screen Cinematic Opening Particle Experience: Shows when window opens, slowly disappears as you scroll down */}
-      {!introDismissed && (
-        <CinematicParticleIntro onComplete={() => setIntroDismissed(true)} />
+      {/* Full-Screen GPU Cinematic Particle Opening Experience (Three.js + WebGL + GSAP) */}
+      {showIntro && (
+        <CinematicParticleIntro onComplete={handleIntroComplete} />
       )}
 
-      {/* Main Website Structure - 100% Present and Accessible to Search Engines and Screen Readers */}
+      {/* Main Website Structure - 100% Preserved & Immediately Accessible to Search Engines and Screen Readers */}
       <Navbar onStartProjectClick={handleStartProject} />
 
       <HeroSection
@@ -54,7 +104,7 @@ export default function Home() {
 
       <ContactSection />
 
-      <Footer />
+      <Footer onReplayIntro={handleReplayIntro} />
     </div>
   );
 }

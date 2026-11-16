@@ -9,7 +9,7 @@ interface CinematicParticleIntroProps {
   onComplete?: () => void;
 }
 
-// Custom Vertex Shader with 3D organic curl interpolation and depth attenuation
+// Custom Vertex Shader with 3D organic curl vector field, cubic interpolation, and depth attenuation
 const vertexShader = `
   uniform float uProgress;
   uniform float uTime;
@@ -43,42 +43,48 @@ const vertexShader = `
     vec3 col = vec3(0.95);
     float alpha = 1.0;
 
-    // Stagger particle arrival slightly using random attribute
+    // Subtle stagger offset per particle
     float stagger = aRandom.w * 0.28;
 
     if (uProgress <= 1.0) {
-      // STAGE 1 -> 2: Particle Arrival & Emblem Convergence
+      // STAGE 1 -> 2: Particle Arrival (0 - 1.2s) & Emblem Convergence (1.2 - 2.5s)
       float t = clamp((uProgress - stagger) / (1.0 - 0.28), 0.0, 1.0);
       float eased = smoothstep(0.0, 1.0, t);
       
       // Curved 3D trajectory
-      vec3 curl = getCurl(aOrigin, aRandom.x * 6.28) * (1.0 - eased) * 8.0;
+      vec3 curl = getCurl(aOrigin, aRandom.x * 6.28) * (1.0 - eased) * 9.0;
       pos = mix(aOrigin + curl, aTarget1, eased);
       
       // Subtle ambient hover breathing when formed
-      pos += getCurl(aTarget1, aRandom.y * 6.28) * (0.07 * eased);
+      pos += getCurl(aTarget1, aRandom.y * 6.28) * (0.06 * eased);
 
-      // Color transition from cosmic red/amber to emblem target color
-      vec3 cosmicColor = mix(vec3(0.71, 0.07, 0.11), vec3(0.94, 0.42, 0.16), aRandom.z);
+      // Color transition from cosmic red, white & grey to emblem target colors
+      vec3 cosmicColor;
+      if (aRandom.x < 0.35) {
+        cosmicColor = vec3(0.79, 0.09, 0.12); // Deep Signboard red
+      } else if (aRandom.x < 0.65) {
+        cosmicColor = vec3(0.95, 0.95, 0.95); // White
+      } else {
+        cosmicColor = vec3(0.48, 0.48, 0.48); // Subtle grey
+      }
       col = mix(cosmicColor, aColor1, eased);
-      alpha = smoothstep(0.0, 0.2, uProgress);
+      alpha = smoothstep(0.0, 0.18, uProgress);
 
     } else if (uProgress <= 2.0) {
-      // STAGE 2 -> 3: Morph from Emblem into Brand Wordmark (SIGNBOARD)
+      // STAGE 2 -> 3: Morph into Brand Name "SIGNBOARD / CREATIVE DIGITAL STUDIO" (2.5 - 3.5s)
       float s = uProgress - 1.0;
       float t = clamp((s - stagger) / (1.0 - 0.28), 0.0, 1.0);
       float eased = smoothstep(0.0, 1.0, t);
 
-      // Arc curvature between shapes
       float arcHeight = sin(eased * 3.14159) * 4.5;
       vec3 arc = vec3((aRandom.x - 0.5) * arcHeight, (aRandom.y - 0.5) * arcHeight, arcHeight * 1.8);
       
       pos = mix(aTarget1, aTarget2, eased) + arc;
-      pos += getCurl(aTarget2, aRandom.y * 6.28) * 0.06;
+      pos += getCurl(aTarget2, aRandom.y * 6.28) * 0.05;
       col = mix(aColor1, aColor2, eased);
 
     } else if (uProgress <= 3.0) {
-      // STAGE 3 -> 4: Morph into Headline ("WE MAKE BUSINESSES IMPOSSIBLE TO IGNORE")
+      // STAGE 3 -> 4: Morph into Main Headline "WE MAKE BUSINESSES IMPOSSIBLE TO IGNORE" (3.5 - 4.8s)
       float s = uProgress - 2.0;
       float t = clamp((s - stagger) / (1.0 - 0.28), 0.0, 1.0);
       float eased = smoothstep(0.0, 1.0, t);
@@ -87,17 +93,17 @@ const vertexShader = `
       vec3 arc = vec3((aRandom.y - 0.5) * arcHeight * 1.2, (aRandom.x - 0.5) * arcHeight, arcHeight * 2.0);
 
       pos = mix(aTarget2, aTarget3, eased) + arc;
-      pos += getCurl(aTarget3, aRandom.z * 6.28) * 0.05;
+      pos += getCurl(aTarget3, aRandom.z * 6.28) * 0.04;
       col = mix(aColor2, aColor3, eased);
 
     } else {
-      // STAGE 5: Autonomous Particle Outward Dispersion
+      // STAGE 5: Cinematic Transition (4.8 - 5.5s) — Controlled particle outward explosion
       float s = uProgress - 3.0; // 0.0 -> 1.0
       float eased = s * s * (3.0 - 2.0 * s);
 
       vec3 dispersalDir = normalize(aTarget3 + vec3(aRandom.x - 0.5, aRandom.y - 0.5, aRandom.z - 0.5) * 3.5);
-      pos = aTarget3 + dispersalDir * (eased * 52.0) + getCurl(aTarget3, aRandom.x) * (eased * 14.0);
-      pos.z += eased * 35.0;
+      pos = aTarget3 + dispersalDir * (eased * 54.0) + getCurl(aTarget3, aRandom.x) * (eased * 15.0);
+      pos.z += eased * 36.0;
       col = aColor3;
       alpha = max(0.0, 1.0 - eased * 1.4);
     }
@@ -115,8 +121,8 @@ const vertexShader = `
     vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
     gl_Position = projectionMatrix * mvPosition;
 
-    // Attenuated particle size
-    float baseSize = mix(18.0, 42.0, aRandom.z);
+    // Attenuated particle size with depth scaling
+    float baseSize = mix(14.0, 36.0, aRandom.z);
     gl_PointSize = baseSize * (1.0 / -mvPosition.z) * uPixelRatio;
   }
 `;
@@ -132,11 +138,13 @@ const fragmentShader = `
     float dist = length(coord);
     if (dist > 0.5) discard;
 
+    // Luminous Gaussian falloff with hot center
     float falloff = smoothstep(0.5, 0.0, dist);
     float glow = pow(falloff, 1.7);
     float finalAlpha = glow * vAlpha * uOpacity;
 
-    vec3 coreColor = mix(vColor, vec3(1.0, 1.0, 1.0), pow(falloff, 4.0) * 0.6);
+    // Hot-white core luminescent center
+    vec3 coreColor = mix(vColor, vec3(1.0, 1.0, 1.0), pow(falloff, 4.0) * 0.55);
 
     gl_FragColor = vec4(coreColor, finalAlpha);
   }
@@ -173,7 +181,6 @@ export function CinematicParticleIntro({ onComplete }: CinematicParticleIntroPro
   useEffect(() => {
     const handleScroll = () => {
       const scrollY = window.scrollY;
-      // Disappears smoothly over the first 350px of scrolling
       const threshold = Math.min(window.innerHeight * 0.55, 380);
       const ratio = Math.min(1.0, Math.max(0.0, scrollY / threshold));
       setScrollProgress(ratio);
@@ -203,13 +210,13 @@ export function CinematicParticleIntro({ onComplete }: CinematicParticleIntroPro
 
     gsap.to(uniformsRef.current.uDisperse, {
       value: 1.0,
-      duration: 0.4,
+      duration: 0.35,
       ease: "power2.out",
     });
 
     gsap.to(uniformsRef.current.uOpacity, {
       value: 0.0,
-      duration: 0.4,
+      duration: 0.35,
       ease: "power2.inOut",
       onComplete: () => {
         onComplete?.();
@@ -242,8 +249,8 @@ export function CinematicParticleIntro({ onComplete }: CinematicParticleIntroPro
     const height = window.innerHeight;
     const isMobile = width < 768;
 
-    // Responsive particle count: ~6,500 on mobile, ~11,000 on desktop
-    const particleCount = isMobile ? 6500 : 11000;
+    // Responsive particle count: ~6,500 on mobile, ~12,000 on desktop
+    const particleCount = isMobile ? 6500 : 12000;
 
     // 1. Setup Three.js Scene, Camera, Renderer
     const scene = new THREE.Scene();
@@ -260,6 +267,13 @@ export function CinematicParticleIntro({ onComplete }: CinematicParticleIntroPro
     const pixelRatio = Math.min(window.devicePixelRatio, 2);
     renderer.setPixelRatio(pixelRatio);
     uniformsRef.current.uPixelRatio.value = pixelRatio;
+
+    // WebGL Context Loss Handling
+    const handleContextLost = (event: Event) => {
+      event.preventDefault();
+      cancelAnimationFrame(animationFrameId);
+    };
+    canvas.addEventListener("webglcontextlost", handleContextLost, false);
 
     // 2. Coordinate Sampling from Offscreen Canvases
     const sampleCanvasPixels = (
@@ -322,6 +336,7 @@ export function CinematicParticleIntro({ onComplete }: CinematicParticleIntroPro
           colors[i3 + 1] = p.g;
           colors[i3 + 2] = p.b;
         } else {
+          // Extra particles form subtle orbiting halo aura around the shape
           const angle = Math.random() * Math.PI * 2;
           const radius = Math.random() * (worldScale.x * 0.65) + 3.0;
           positions[i3] = Math.cos(angle) * radius;
@@ -346,11 +361,14 @@ export function CinematicParticleIntro({ onComplete }: CinematicParticleIntroPro
         ctx.translate((w - emblemSize) / 2, (h - emblemSize) / 2);
         ctx.scale(emblemSize / 120, emblemSize / 120);
 
+        // Deep Signboard Red (#C9161F)
         ctx.fillStyle = "#C9161F";
+        // 1. Top Hanging Mounting Bracket Bar & Pegs
         ctx.fillRect(18, 18, 84, 5.5);
         ctx.fillRect(30, 23.5, 5, 8.5);
         ctx.fillRect(85, 23.5, 5, 8.5);
 
+        // 2. The Architectural 'S' Sections
         const p1 = new Path2D("M 26 32 H 94 V 58 H 78 V 46 H 42 V 46 L 26 46 Z");
         ctx.fill(p1);
 
@@ -360,6 +378,7 @@ export function CinematicParticleIntro({ onComplete }: CinematicParticleIntroPro
         const p3 = new Path2D("M 26 74 H 42 V 86 H 78 V 98 H 26 V 74 Z");
         ctx.fill(p3);
 
+        // 3. Burnt Orange Accent Bars (#F06A28)
         ctx.fillStyle = "#F06A28";
         ctx.fillRect(54, 46, 26, 4.5);
         ctx.fillRect(40, 79, 26, 4.5);
@@ -370,7 +389,7 @@ export function CinematicParticleIntro({ onComplete }: CinematicParticleIntroPro
       800,
       { x: isMobile ? 15 : 18, y: isMobile ? 15 : 18 },
       particleCount,
-      [0.78, 0.09, 0.12]
+      [0.79, 0.09, 0.12]
     );
 
     // TARGET 2: Brand Identity Formation ("SIGNBOARD" / "CREATIVE DIGITAL STUDIO")
@@ -425,7 +444,7 @@ export function CinematicParticleIntro({ onComplete }: CinematicParticleIntroPro
       [0.94, 0.42, 0.16]
     );
 
-    // TARGET 3: Headline Formation ("WE MAKE BUSINESSES IMPOSSIBLE TO IGNORE.")
+    // TARGET 3: Main Headline Formation ("WE MAKE BUSINESSES IMPOSSIBLE TO IGNORE.")
     const target3 = sampleCanvasPixels(
       (ctx, w, h) => {
         ctx.clearRect(0, 0, w, h);
@@ -472,7 +491,7 @@ export function CinematicParticleIntro({ onComplete }: CinematicParticleIntroPro
       [0.93, 0.93, 0.93]
     );
 
-    // 3. Stage 1 Origin Positions & Random Seeds
+    // 3. Stage 1 Origin Positions (Screen Edges, Corners, and Deep 3D Depth)
     const aOrigin = new Float32Array(particleCount * 3);
     const aRandom = new Float32Array(particleCount * 4);
 
@@ -480,13 +499,12 @@ export function CinematicParticleIntro({ onComplete }: CinematicParticleIntroPro
       const i3 = i * 3;
       const i4 = i * 4;
 
-      const radius = 25.0 + Math.random() * 45.0;
-      const theta = Math.random() * Math.PI * 2;
-      const phi = (Math.random() - 0.5) * Math.PI;
-
-      aOrigin[i3] = radius * Math.cos(phi) * Math.sin(theta);
-      aOrigin[i3 + 1] = radius * Math.sin(phi);
-      aOrigin[i3 + 2] = (Math.random() - 0.5) * 50.0 - 15.0;
+      // Distribute from screen perimeter edges and deep background
+      const angle = Math.random() * Math.PI * 2;
+      const dist = 28.0 + Math.random() * 45.0;
+      aOrigin[i3] = Math.cos(angle) * dist;
+      aOrigin[i3 + 1] = Math.sin(angle) * dist * 0.75;
+      aOrigin[i3 + 2] = (Math.random() - 0.5) * 60.0 - 15.0;
 
       aRandom[i4] = Math.random();
       aRandom[i4 + 1] = Math.random();
@@ -519,7 +537,7 @@ export function CinematicParticleIntro({ onComplete }: CinematicParticleIntroPro
     const particles = new THREE.Points(geometry, material);
     scene.add(particles);
 
-    // 6. GSAP Choreographed Master Timeline
+    // 6. GSAP Choreographed Master Timeline (~5.5 seconds total)
     const tl = gsap.timeline({
       onUpdate: () => {
         const val = uniformsRef.current.uProgress.value;
@@ -535,37 +553,37 @@ export function CinematicParticleIntro({ onComplete }: CinematicParticleIntroPro
 
     timelineRef.current = tl;
 
-    // Stage 1 -> 2: Particle Arrival & Assemble into Emblem
+    // STAGE 1 & 2: Particle Arrival (0 - 1.2s) & Logo Formation (1.2 - 2.5s)
     tl.to(uniformsRef.current.uProgress, {
       value: 1.0,
-      duration: 1.15,
+      duration: 1.25,
       ease: "power2.inOut",
     });
 
-    // Emblem Linger
-    tl.to({}, { duration: 0.45 });
+    // Logo Linger (appreciate the complete emblem)
+    tl.to({}, { duration: 1.15 });
 
-    // Stage 2 -> 3: Morph from Emblem into Brand Wordmark ("SIGNBOARD")
+    // STAGE 3: Brand Name Formation ("SIGNBOARD" / "CREATIVE DIGITAL STUDIO") (2.5 - 3.5s)
     tl.to(uniformsRef.current.uProgress, {
       value: 2.0,
-      duration: 0.95,
+      duration: 0.75,
       ease: "power2.inOut",
     });
 
-    // Brand Wordmark Linger
-    tl.to({}, { duration: 0.4 });
+    // Brand Name Linger
+    tl.to({}, { duration: 0.35 });
 
-    // Stage 3 -> 4: Morph into Master Headline ("WE MAKE BUSINESSES IMPOSSIBLE TO IGNORE")
+    // STAGE 4: Main Headline Formation ("WE MAKE BUSINESSES IMPOSSIBLE TO IGNORE.") (3.5 - 4.8s)
     tl.to(uniformsRef.current.uProgress, {
       value: 3.0,
-      duration: 0.95,
+      duration: 0.75,
       ease: "power2.inOut",
     });
 
     // Headline Linger
-    tl.to({}, { duration: 1.2 });
+    tl.to({}, { duration: 0.55 });
 
-    // Stage 5: Cinematic Dispersion and Dissolve (if user hasn't scrolled yet)
+    // STAGE 5: Cinematic Transition (4.8 - 5.5s) — Outward dispersion explosion and dissolve
     tl.to(uniformsRef.current.uProgress, {
       value: 4.0,
       duration: 0.7,
@@ -591,17 +609,19 @@ export function CinematicParticleIntro({ onComplete }: CinematicParticleIntroPro
       "-=0.5"
     );
 
-    // 7. Render Loop
+    // 7. Render Loop with Visibility Handling
     let clock = new THREE.Clock();
 
     const animate = () => {
       if (!isMounted) return;
       animationFrameId = requestAnimationFrame(animate);
 
+      if (document.hidden) return; // Pause during tab inactivity
+
       const delta = clock.getDelta();
       uniformsRef.current.uTime.value += delta;
 
-      particles.rotation.y = Math.sin(uniformsRef.current.uTime.value * 0.25) * 0.04;
+      particles.rotation.y = Math.sin(uniformsRef.current.uTime.value * 0.25) * 0.035;
       particles.rotation.x = Math.cos(uniformsRef.current.uTime.value * 0.2) * 0.02;
 
       renderer.render(scene, camera);
@@ -629,6 +649,7 @@ export function CinematicParticleIntro({ onComplete }: CinematicParticleIntroPro
       isMounted = false;
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener("resize", handleResize);
+      canvas.removeEventListener("webglcontextlost", handleContextLost);
       if (timelineRef.current) {
         timelineRef.current.kill();
       }
