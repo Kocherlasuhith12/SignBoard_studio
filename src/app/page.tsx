@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { HeroSection } from "@/components/sections/HeroSection";
 import { BrandIntroduction } from "@/components/sections/BrandIntroduction";
+import { FlagshipCaseStudySection } from "@/components/sections/FlagshipCaseStudySection";
 import { ServicesSection } from "@/components/sections/ServicesSection";
 import { SelectedWorkSection } from "@/components/sections/SelectedWorkSection";
 import { FounderSection } from "@/components/sections/FounderSection";
@@ -94,9 +95,11 @@ export default function Home() {
 
       <BrandIntroduction />
 
-      <ServicesSection onServiceInquire={handleStartProject} />
+      <FlagshipCaseStudySection onInquire={handleStartProject} />
 
       <SelectedWorkSection />
+
+      <ServicesSection onServiceInquire={handleStartProject} />
 
       <FounderSection onDirectConnect={handleStartProject} />
 

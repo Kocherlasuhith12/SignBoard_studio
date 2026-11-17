@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { ArrowDown, ArrowRight, Sparkles, Layers, ShieldCheck, Zap } from "lucide-react";
+import { ArrowDown, ArrowUpRight, Sparkles, Layers, ShieldCheck, Zap, Compass, Play } from "lucide-react";
 import { SignboardMonogram } from "@/components/ui/SignboardLogo";
 import { useSound } from "@/context/SoundContext";
 
@@ -14,216 +14,195 @@ interface HeroSectionProps {
 export function HeroSection({ onExploreClick, onStartProjectClick }: HeroSectionProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const { playHover, playClick } = useSound();
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end start"],
   });
 
-  const opacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
-  const y = useTransform(scrollYProgress, [0, 0.7], [0, 100]);
-  const scale = useTransform(scrollYProgress, [0, 0.7], [1, 0.95]);
+  const opacity = useTransform(scrollYProgress, [0, 0.65], [1, 0]);
+  const y = useTransform(scrollYProgress, [0, 0.65], [0, 80]);
+  const scale = useTransform(scrollYProgress, [0, 0.65], [1, 0.96]);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    setMousePos({
+      x: ((e.clientX - rect.left) / rect.width) * 100,
+      y: ((e.clientY - rect.top) / rect.height) * 100,
+    });
+  };
 
   return (
     <section
       id="hero"
       ref={containerRef}
-      className="relative min-h-screen flex flex-col justify-between items-center pt-32 pb-14 px-6 sm:px-8 overflow-hidden z-10"
+      onMouseMove={handleMouseMove}
+      className="relative min-h-[94vh] lg:min-h-screen flex flex-col justify-between pt-28 sm:pt-36 pb-12 sm:pb-16 px-6 sm:px-10 lg:px-16 overflow-hidden z-10 select-none"
     >
-      {/* Background Architectural Mesh & Subtle Lighting Spheres */}
-      <div className="absolute inset-0 bg-grid-pattern opacity-40 pointer-events-none" />
+      {/* Background Architectural Grid & Precision Crosshairs */}
+      <div className="absolute inset-0 bg-grid-pattern opacity-25 pointer-events-none" />
 
-      {/* Red/Orange Centerstage Light Core - Softened for sophisticated editorial contrast */}
+      {/* Dynamic Mouse-Responsive Ambient Light Core */}
       <div
-        className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[450px] sm:w-[850px] sm:h-[550px] rounded-full blur-[160px] pointer-events-none opacity-25"
+        className="absolute w-[600px] h-[600px] sm:w-[900px] sm:h-[900px] rounded-full blur-[160px] pointer-events-none opacity-20 transition-all duration-700 ease-out"
         style={{
+          left: `${mousePos.x || 50}%`,
+          top: `${mousePos.y || 45}%`,
+          transform: "translate(-50%, -50%)",
           background:
-            "radial-gradient(circle, rgba(181, 18, 27, 0.45) 0%, rgba(240, 106, 40, 0.2) 45%, rgba(10, 10, 10, 0) 75%)",
+            "radial-gradient(circle, rgba(181, 18, 27, 0.55) 0%, rgba(240, 106, 40, 0.25) 40%, rgba(7, 7, 7, 0) 70%)",
         }}
       />
 
-      {/* Studio Header Tagline Badge */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 0.1 }}
-        className="relative z-10 flex items-center gap-3 px-4 py-2 rounded-full bg-white/[0.04] border border-white/10 backdrop-blur-md mb-8"
-      >
-        <span className="font-mono text-xs text-neutral-300 tracking-[0.25em] uppercase font-medium">
-          PREMIUM CREATIVE DIGITAL STUDIO
-        </span>
-        <span className="text-neutral-500 text-xs">/</span>
-        <span className="font-mono text-xs text-[#F06A28] tracking-widest font-semibold">
-          HYDERABAD / GLOBAL
-        </span>
-      </motion.div>
+      {/* Top Editorial Horizon Metadata */}
+      <div className="relative z-10 w-full max-w-[1540px] mx-auto flex items-center justify-between text-neutral-400 font-mono text-[10px] sm:text-xs tracking-[0.25em] uppercase border-b border-white/5 pb-4 sm:pb-6">
+        <div className="flex items-center gap-2.5">
+          <span className="w-2 h-2 rounded-full bg-[#B5121B] animate-pulse" />
+          <span className="text-white font-semibold">SIGNBOARD STUDIO</span>
+          <span className="text-neutral-600 hidden sm:inline">/</span>
+          <span className="text-neutral-400 hidden sm:inline">EDITION V2.0</span>
+        </div>
 
-      {/* Main Content Area: Monogram + Wordmark + Master Editorial Headline */}
+        <div className="flex items-center gap-4 sm:gap-6 text-neutral-400">
+          <span className="hidden md:inline">DIGITAL ARCHITECTURE • KINETIC MOTION • ART DIRECTION</span>
+          <span className="text-[#F06A28] font-semibold">HYDERABAD / GLOBAL</span>
+        </div>
+      </div>
+
+      {/* Main Asymmetrical Editorial Stage */}
       <motion.div
         style={{ opacity, y, scale }}
-        className="relative z-10 max-w-6xl w-full text-center flex flex-col items-center my-auto"
+        className="relative z-10 w-full max-w-[1540px] mx-auto my-auto py-8 sm:py-12 lg:py-16 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center"
       >
-        {/* Animated Official Signboard S Monogram & Wordmark Reveal */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-          className="mb-8 flex flex-col items-center"
-        >
-          {/* Official Signboard Emblem with Volumetric Glow & Pendulum Physics */}
-          <div className="mb-2">
-            <SignboardMonogram className="w-28 h-28 sm:w-36 sm:h-36" glow animated />
+        {/* Left Column (Col 1-8): Authoritative Master Headline */}
+        <div className="lg:col-span-8 flex flex-col justify-center">
+          <div className="inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.3em] text-[#F06A28] mb-5 sm:mb-6">
+            <span>DISCIPLINED CREATIVE TECHNOLOGY</span>
           </div>
 
-          {/* Interactive Audio Hint */}
-          <div className="flex items-center gap-2 font-mono text-[9px] uppercase tracking-[0.25em] text-neutral-400 mb-4 py-1 px-3 rounded-full bg-white/[0.03] border border-white/5">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#F06A28] animate-ping" />
-            <span>TOUCH EMBLEM FOR ACOUSTIC CHIME</span>
-          </div>
-
-          {/* Complete SIGNBOARD Wordmark Matching Official Branding */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="flex flex-col items-center"
-          >
-            <div className="flex items-center gap-2">
-              <span className="font-serif font-black text-white text-2xl sm:text-3xl tracking-[0.35em] uppercase">
-                SIGNBOARD
+          <h1 className="font-serif text-[2.75rem] sm:text-6xl md:text-7xl lg:text-8xl xl:text-[6.5rem] font-bold text-white uppercase tracking-tight leading-[0.94] mb-6 sm:mb-8">
+            WE MAKE <br />
+            BUSINESSES <br />
+            <span className="relative inline-block my-1">
+              <span className="bg-gradient-to-r from-[#B5121B] via-[#E82823] to-[#F06A28] bg-clip-text text-transparent italic font-serif pr-2">
+                IMPOSSIBLE
               </span>
-            </div>
-            <span className="font-mono text-neutral-400 font-semibold uppercase text-[10px] tracking-[0.45em] mt-1.5">
-              CREATIVE DIGITAL STUDIO
-            </span>
-          </motion.div>
-        </motion.div>
+              <motion.span
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: 1 }}
+                transition={{ duration: 1.2, delay: 0.5, ease: "easeOut" }}
+                className="absolute -bottom-1.5 left-0 right-2 h-[2px] bg-gradient-to-r from-[#B5121B] to-[#F06A28] origin-left"
+              />
+            </span>{" "}
+            <br />
+            TO IGNORE.
+          </h1>
 
-        {/* Master Headline: WE MAKE BUSINESSES IMPOSSIBLE TO IGNORE */}
-        <motion.h1
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-          className="font-serif text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-black text-white uppercase tracking-tight leading-[0.98] mb-8"
-        >
-          WE MAKE <br className="hidden sm:inline" />
-          BUSINESSES{" "}
-          <span className="relative inline-block">
-            <span className="bg-gradient-to-r from-[#B5121B] via-[#E82823] to-[#F06A28] bg-clip-text text-transparent italic pr-2">
-              IMPOSSIBLE
-            </span>
-            {/* Architectural accent underline */}
-            <motion.span
-              initial={{ scaleX: 0 }}
-              animate={{ scaleX: 1 }}
-              transition={{ duration: 1.2, delay: 0.6, ease: "easeOut" }}
-              className="absolute -bottom-2 left-0 right-2 h-[3px] bg-gradient-to-r from-[#B5121B] to-[#F06A28] rounded-full origin-left"
-            />
-          </span>{" "}
-          <br className="hidden md:inline" />
-          TO IGNORE.
-        </motion.h1>
+          <p className="font-sans text-neutral-300 text-base sm:text-lg md:text-xl font-light tracking-wide max-w-2xl leading-relaxed mb-8 sm:mb-10">
+            An independent creative technology atelier sculpting high-performance web architecture, cinematic motion design, and intelligent software systems for category-defining brands.
+          </p>
 
-        {/* Supporting Text */}
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, delay: 0.35 }}
-          className="font-sans text-neutral-300 text-lg sm:text-2xl font-light tracking-wide max-w-3xl mx-auto leading-relaxed mb-10"
-        >
-          Creative digital experiences. Powerful visual storytelling. Intelligent solutions.
-        </motion.p>
+          {/* Action CTAs */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 sm:gap-6">
+            <button
+              onClick={() => {
+                playClick();
+                onStartProjectClick();
+              }}
+              onMouseEnter={playHover}
+              className="group relative px-8 py-4 rounded-full bg-gradient-to-r from-[#B5121B] to-[#F06A28] text-white font-mono text-xs sm:text-sm tracking-[0.22em] font-semibold uppercase flex items-center justify-center gap-3 overflow-hidden shadow-[0_0_30px_rgba(181,18,27,0.45)] hover:shadow-[0_0_50px_rgba(240,106,40,0.65)] transition-all duration-300 hover:scale-[1.03] active:scale-[0.98]"
+              data-cursor-text="COMMISSION"
+            >
+              <span className="relative z-10 flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-orange-200" />
+                START A COMMISSION
+                <ArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              </span>
+              <span className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+            </button>
 
-        {/* Hero CTAs */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.5 }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-5 sm:gap-6 w-full sm:w-auto"
-        >
-          {/* Primary CTA: EXPLORE OUR WORLD */}
-          <button
-            onClick={() => {
-              playClick();
-              onExploreClick();
-            }}
-            onMouseEnter={playHover}
-            className="w-full sm:w-auto group relative px-8 py-4 rounded-full bg-gradient-to-r from-[#B5121B] to-[#F06A28] text-white font-mono text-xs sm:text-sm tracking-[0.25em] font-semibold uppercase flex items-center justify-center gap-3 overflow-hidden shadow-[0_0_35px_rgba(181,18,27,0.5)] hover:shadow-[0_0_55px_rgba(240,106,40,0.7)] transition-all duration-300 hover:scale-105 active:scale-95"
-            data-cursor-text="EXPLORE"
-          >
-            <span className="relative z-10 flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-orange-200" />
-              EXPLORE OUR WORLD
-              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-            </span>
-            <span className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-          </button>
-
-          {/* Secondary CTA: START A PROJECT */}
-          <button
-            onClick={() => {
-              playClick();
-              onStartProjectClick();
-            }}
-            onMouseEnter={playHover}
-            className="w-full sm:w-auto px-8 py-4 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/20 hover:border-[#F06A28]/60 text-white font-mono text-xs sm:text-sm tracking-[0.25em] uppercase font-medium transition-all duration-300 hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
-            data-cursor-text="START"
-          >
-            <span>START A PROJECT</span>
-          </button>
-        </motion.div>
-      </motion.div>
-
-      {/* Hero Footnote / Interactive Studio Telemetry Cards */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1, delay: 0.7 }}
-        className="relative z-10 w-full max-w-6xl mt-12 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-6"
-      >
-        {/* Core Pillars */}
-        <div className="grid grid-cols-3 gap-4 sm:gap-8 w-full md:w-auto text-left">
-          <div className="flex items-center gap-2.5">
-            <Zap className="w-4 h-4 text-[#F06A28]" />
-            <div>
-              <div className="font-mono text-xs text-white font-semibold uppercase">HIGH SPEED</div>
-              <div className="font-mono text-[10px] text-neutral-400">Next.js & WebGL</div>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2.5">
-            <Layers className="w-4 h-4 text-[#B5121B]" />
-            <div>
-              <div className="font-mono text-xs text-white font-semibold uppercase">BESPOKE</div>
-              <div className="font-mono text-[10px] text-neutral-400">Zero Templates</div>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2.5">
-            <ShieldCheck className="w-4 h-4 text-emerald-400" />
-            <div>
-              <div className="font-mono text-xs text-white font-semibold uppercase">PROVEN</div>
-              <div className="font-mono text-[10px] text-neutral-400">Founder Guided</div>
-            </div>
+            <button
+              onClick={() => {
+                playClick();
+                onExploreClick();
+              }}
+              onMouseEnter={playHover}
+              className="px-8 py-4 rounded-full bg-white/[0.03] hover:bg-white/[0.08] border border-white/15 hover:border-white/35 text-white font-mono text-xs sm:text-sm tracking-[0.22em] uppercase font-medium transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2.5"
+              data-cursor-text="EXPLORE"
+            >
+              <span>EXPLORE WORK</span>
+              <ArrowDown className="w-3.5 h-3.5 text-neutral-400 group-hover:text-white transition-colors" />
+            </button>
           </div>
         </div>
 
-        {/* Scroll Indicator */}
+        {/* Right Column (Col 9-12): Architectural Emblem Anchor & Studio Telemetry */}
+        <div className="lg:col-span-4 flex flex-col items-start lg:items-end justify-center space-y-8">
+          {/* Interactive Architectural Signboard Emblem Anchor */}
+          <div className="p-8 sm:p-10 rounded-3xl bg-gradient-to-b from-[#121212]/90 to-[#0A0A0A]/90 border border-white/10 backdrop-blur-md shadow-2xl relative overflow-hidden w-full max-w-md group">
+            <div className="flex items-center justify-between mb-8 pb-4 border-b border-white/5">
+              <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#F06A28]">
+                ARCHITECTURAL SEAL
+              </span>
+              <span className="w-2 h-2 rounded-full bg-emerald-400" />
+            </div>
+
+            <div className="flex flex-col items-center justify-center py-4">
+              <div className="mb-4">
+                <SignboardMonogram className="w-28 h-28 sm:w-32 sm:h-32" glow animated />
+              </div>
+              <div className="font-mono text-[9px] uppercase tracking-[0.25em] text-neutral-400 text-center py-1 px-3 rounded-full bg-white/[0.03] border border-white/5">
+                TOUCH EMBLEM FOR ACOUSTIC CHIME
+              </div>
+            </div>
+
+            <div className="mt-6 pt-6 border-t border-white/5 space-y-3 font-mono text-xs text-neutral-300">
+              <div className="flex items-center justify-between">
+                <span className="text-neutral-500 text-[10px]">PHILOSOPHY</span>
+                <span className="text-white font-medium">Bespoke By Nature</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-neutral-500 text-[10px]">SPEED INDEX</span>
+                <span className="text-emerald-400 font-medium">99 / 100 Web Vitals</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-neutral-500 text-[10px]">FOUNDER LEAD</span>
+                <span className="text-neutral-300 font-medium">KKS Suhith</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Bottom Architectural Telemetry & Scroll Prompt */}
+      <div className="relative z-10 w-full max-w-[1540px] mx-auto pt-6 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-[10px] sm:text-[11px] tracking-widest text-neutral-400 uppercase">
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-2">
+            <Zap className="w-3.5 h-3.5 text-[#F06A28]" />
+            <span>LATENCY: 0MS WEB AUDIO</span>
+          </div>
+          <span className="text-neutral-700 hidden sm:inline">•</span>
+          <div className="flex items-center gap-2">
+            <Layers className="w-3.5 h-3.5 text-[#B5121B]" />
+            <span>CORE: NEXT.JS 14 / WEBGL</span>
+          </div>
+        </div>
+
         <button
           onClick={() => {
             playClick();
             onExploreClick();
           }}
           onMouseEnter={playHover}
-          className="group flex items-center gap-3 font-mono text-xs text-neutral-400 hover:text-white uppercase tracking-widest transition-colors cursor-pointer"
-          data-cursor-text="SCROLL"
+          className="flex items-center gap-2.5 text-neutral-400 hover:text-white transition-colors cursor-pointer group"
+          aria-label="Scroll to explore showcase"
         >
-          <span>SCROLL TO DISCOVER</span>
-          <div className="w-8 h-8 rounded-full border border-white/15 flex items-center justify-center group-hover:border-[#F06A28] group-hover:bg-[#F06A28]/10 transition-all">
-            <ArrowDown className="w-3.5 h-3.5 text-neutral-400 group-hover:text-white group-hover:translate-y-0.5 transition-transform" />
-          </div>
+          <span>SCROLL TO DISCOVER ARCHIVE</span>
+          <ArrowDown className="w-3.5 h-3.5 text-[#F06A28] group-hover:translate-y-1 transition-transform" />
         </button>
-      </motion.div>
+      </div>
     </section>
   );
 }

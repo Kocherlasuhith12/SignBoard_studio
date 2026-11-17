@@ -2,14 +2,15 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowUpRight, X, Code, CheckCircle, ShieldAlert, Cpu, Layers, Sparkles } from "lucide-react";
+import { ArrowUpRight, X, Code, CheckCircle, ShieldAlert, Cpu, Layers, Sparkles, Filter, Terminal, Compass, Eye, ExternalLink } from "lucide-react";
 import { useSound } from "@/context/SoundContext";
 
 export interface Project {
   id: string;
   title: string;
   subtitle: string;
-  conceptBadge: string;
+  classification: "real" | "concept";
+  badgeText: string;
   category: "web" | "motion" | "creative" | "ai";
   categoryLabel: string;
   year: string;
@@ -21,60 +22,103 @@ export interface Project {
   technologies: string[];
   deliverables: string[];
   visualHighlights: string[];
+  liveUrl?: string;
 }
 
 export function SelectedWorkSection() {
-  const [selectedFilter, setSelectedFilter] = useState<string>("all");
+  const [selectedFilter, setSelectedFilter] = useState<"all" | "real" | "concept">("all");
   const [activeModalProject, setActiveModalProject] = useState<Project | null>(null);
   const { playHover, playClick, playReveal, playModalClose, playTabSwitch } = useSound();
 
   const projects: Project[] = [
+    // 1. REAL PRODUCTIONS & LIVE ARCHITECTURE
     {
-      id: "kinetic-runway",
-      title: "KINETIC RUNWAY",
-      subtitle: "3D Spatial Fashion Lookbook & Real-Time Garment Dynamics",
-      conceptBadge: "STUDIO CONCEPT ARCHIVE",
+      id: "signboard-platform",
+      title: "SIGNBOARD STUDIO PLATFORM",
+      subtitle: "Full-Stack Creative Tech Atelier & GPU WebGL Kinematics Engine",
+      classification: "real",
+      badgeText: "PRODUCTION // LIVE SYSTEM",
       category: "web",
-      categoryLabel: "WEB & MOTION ARCHITECTURE",
+      categoryLabel: "FLAGSHIP DIGITAL PLATFORM",
       year: "2025",
       overview:
-        "A radical digital runway and interactive spatial lookbook exploring real-time garment physics, mouse-reactive cloth drape, and kinetic typography for high-fashion digital presentations.",
+        "The living digital flagship for Signboard Studio. Engineered as an uncompromised showcase of GPU WebGL particle kinematics, zero-latency Web Audio API synthesis, and production Next.js 14 edge architecture.",
       problem:
-        "Traditional luxury lookbooks are static PDF-style grids that fail to convey the physical weight, drape, movement, and tactile luxury of contemporary couture on digital devices.",
+        "Most digital studio websites rely on off-the-shelf templates, bloated libraries, and heavy third-party video loops that cripple mobile performance and load times.",
       creativeDirection:
-        "Monochromatic brutalism with signature crimson (#B5121B) lighting accents, high-contrast typography, and fluid camera transitions that simulate physical runway front-row perspectives.",
+        "Void obsidian minimalism, signature crimson (#B5121B) and burnt solar orange (#F06A28) luminescent accents, editorial Cormorant Garamond headings, and surgical JetBrains Mono telemetry.",
       architecture:
-        "Next.js 14 App Router paired with Three.js / WebGL. Custom GLSL vertex shaders compute cloth wave deformation directly on the GPU without main-thread UI jank.",
+        "Next.js 14 App Router, Three.js custom GLSL shader particle engine, typed Float32Array coordinate buffers, Web Audio API pre-decoded memory caching, and Tailwind CSS tokens.",
       servicesInvolved: [
         "Flagship Web Architecture",
         "Creative Motion Design",
-        "Art Direction & Visual Systems",
+        "Custom GLSL Shaders",
+        "Acoustic Audio Engineering",
       ],
-      technologies: ["Next.js", "Three.js / WebGL", "GLSL Shaders", "GSAP ScrollTrigger", "Tailwind CSS"],
+      technologies: ["Next.js 14", "TypeScript", "Three.js", "Web Audio API", "GSAP", "Tailwind CSS"],
       deliverables: [
-        "Interactive 3D Lookbook Engine",
-        "Custom GLSL Cloth Shader Pipeline",
-        "Responsive Touch Gesture Navigation",
-        "Modular Component Design System",
+        "12,000-Particle WebGL Morph Engine",
+        "Hardware-Accelerated 0ms Audio Engine",
+        "Static Export Pipeline for GitHub Pages",
+        "Bespoke Responsive Layout Choreography",
       ],
       visualHighlights: [
-        "Real-time cloth physics in WebGL browser canvas",
-        "Kinetic mouse-reactive drape distortion",
-        "Hardware-accelerated mobile performance & gesture tuning",
+        "Real-time particle convergence into architectural emblem",
+        "Interactive 432Hz acoustic harmonic chime feedback",
+        "100/100 Core Web Vitals across mobile and desktop",
+      ],
+      liveUrl: "https://kocherlasuhith12.github.io/SignBoard_studio/",
+    },
+    {
+      id: "suhith-identity",
+      title: "SUHITH EXECUTIVE IDENTITY",
+      subtitle: "Founder-Led Personal Brand Architecture & Digital System",
+      classification: "real",
+      badgeText: "COMMISSION // LIVE IDENTITY",
+      category: "creative",
+      categoryLabel: "BRAND & EXECUTIVE PORTFOLIO",
+      year: "2024",
+      overview:
+        "A comprehensive digital brand architecture and interactive portfolio system designed for founder and creative director KKS Suhith, unifying software engineering rigor with cinematic art direction.",
+      problem:
+        "Founder profiles are typically fragmented across disparate social networks, lacking an authoritative centralized digital system that demonstrates multi-disciplinary mastery.",
+      creativeDirection:
+        "High-contrast editorial typography, deep monochrome with fiery crimson accents, verified credentials dossier, and direct executive commission dispatch.",
+      architecture:
+        "Next.js App Router, modular React components, FormSubmit encrypted email routing, and hardware-accelerated video reels.",
+      servicesInvolved: [
+        "Art Direction & Editorial Systems",
+        "Full-Stack Web Engineering",
+        "Brand Strategy & Positioning",
+      ],
+      technologies: ["Next.js", "React 18", "TypeScript", "Tailwind CSS", "Framer Motion"],
+      deliverables: [
+        "Executive Identity System",
+        "Verified Credentials Dossier",
+        "Direct Client Commission Gateway",
+        "Responsive Mobile Architecture",
+      ],
+      visualHighlights: [
+        "Editorial portrait composition with cinematic lighting",
+        "Direct verified contact routing with spam protection",
+        "Seamless section navigation and tactile feedback",
       ],
     },
+
+    // 2. STUDIO R&D CONCEPTS & EXPERIMENTAL PROTOTYPES
     {
       id: "aura-cognitive-labs",
       title: "AURA COGNITIVE LABS",
       subtitle: "Generative Neural Intelligence & Multi-Model Research Console",
-      conceptBadge: "STUDIO CONCEPT ARCHIVE",
+      classification: "concept",
+      badgeText: "STUDIO R&D // CONCEPT PROTOTYPE",
       category: "ai",
       categoryLabel: "AI & INTERACTION INTERFACE",
       year: "2025",
       overview:
-        "An executive research portal and interactive neural visualizer developed to represent autonomous agent topologies, latent reasoning vectors, and live inference streams.",
+        "An experimental research portal and interactive neural visualizer designed to represent autonomous agent topologies, latent reasoning vectors, and live inference streams.",
       problem:
-        "Complex multi-agent AI architectures and high-dimensional latent reasoning paths are notoriously difficult to communicate to executive decision-makers and non-technical stakeholders.",
+        "Complex multi-agent AI architectures and high-dimensional latent reasoning paths are notoriously difficult to communicate to executive decision-makers.",
       creativeDirection:
         "Deep cosmic void minimalism, burnt orange (#F06A28) luminescent data lines, ultra-fine coordinate grids, and fluid force-directed graph physics.",
       architecture:
@@ -82,6 +126,7 @@ export function SelectedWorkSection() {
       servicesInvolved: [
         "AI Workflow & Generative Integration",
         "Flagship Web Architecture",
+        "Data Visualization UI",
       ],
       technologies: ["Next.js", "TypeScript", "Canvas 2D / WebGL", "Gemini API", "Vector Math"],
       deliverables: [
@@ -100,14 +145,15 @@ export function SelectedWorkSection() {
       id: "archetype-sound",
       title: "ARCHETYPE SOUND",
       subtitle: "High-Fidelity Acoustic Systems & Waveform Synthesis Experience",
-      conceptBadge: "STUDIO CONCEPT ARCHIVE",
+      classification: "concept",
+      badgeText: "STUDIO R&D // CONCEPT PROTOTYPE",
       category: "web",
       categoryLabel: "WEB & AUDIO ARCHITECTURE",
       year: "2024",
       overview:
         "An immersive hardware e-commerce and frequency synthesis web experience engineered for bespoke studio audio monitors, reference acoustics, and precision sound baffles.",
       problem:
-        "Selling high-end acoustic equipment online is hampered by the inability of traditional flat e-commerce layouts to communicate physical frequency response and spatial soundstage.",
+        "Selling high-end acoustic equipment online is hampered by the inability of traditional flat e-commerce layouts to communicate physical frequency response.",
       creativeDirection:
         "Tactile titanium surfaces, real-time procedural oscilloscope visualizers, deep sub-bass ambient glow, and razor-sharp typographic discipline.",
       architecture:
@@ -115,13 +161,14 @@ export function SelectedWorkSection() {
       servicesInvolved: [
         "Flagship Web Architecture",
         "Creative Motion Design",
+        "Synthesizer Interface Design",
       ],
       technologies: ["Web Audio API", "Next.js", "TypeScript", "Framer Motion", "Tailwind CSS"],
       deliverables: [
         "Procedural Frequency Visualizer Canvas",
         "Interactive Acoustic Baffle Configuration Tool",
         "Custom Synthesizer Audio Preview Module",
-        "Bespoke Sound-Responsive UI Feedback System",
+        "Sound-Responsive UI Feedback System",
       ],
       visualHighlights: [
         "Real-time procedural sine and frequency visualizer",
@@ -133,88 +180,78 @@ export function SelectedWorkSection() {
       id: "obsidian-architects",
       title: "OBSIDIAN ARCHITECTS",
       subtitle: "Monumental Spatial Design & Monolithic Concrete Portfolio",
-      conceptBadge: "STUDIO CONCEPT ARCHIVE",
+      classification: "concept",
+      badgeText: "STUDIO R&D // CONCEPT PROTOTYPE",
       category: "creative",
       categoryLabel: "ART DIRECTION & EDITORIAL WEB",
       year: "2024",
       overview:
-        "A monumental, asymmetrical editorial portfolio for an avant-garde architectural collective celebrated for brutalist structures, sculpted concrete masses, and raw spatial light.",
+        "A monumental brutalist digital presentation for an avant-garde architectural firm, celebrating raw monolithic textures, geometric shadows, and structural silence.",
       problem:
-        "Standard horizontal-scrolling architecture portfolios look identical and fail to convey the gravitas, concrete materiality, and shadow drama of brutalist physical structures.",
+        "Standard architectural portfolios rely on cluttered gallery sliders that undermine the solemnity, scale, and material gravitas of monumental structures.",
       creativeDirection:
-        "Monolithic editorial layout, heavy serif headline weights balanced by immense negative space, chiaroscuro shadow contrasts, and synchronized elevation schematics.",
+        "Architectural coordinate grids, high-contrast chiaroscuro photography, asymmetric column spans, and heavy typographic presence.",
       architecture:
-        "Static pre-rendered Next.js architecture with smooth scroll mechanics, responsive image art direction, and dynamic CSS grid layouts.",
+        "SSR Next.js layout with optimized image pipelines, custom scroll triggers, and fluid CSS grid composition.",
       servicesInvolved: [
-        "Art Direction & Editorial Visual System",
-        "Flagship Web Architecture",
+        "Art Direction & Editorial Systems",
+        "Bespoke Web Design",
+        "Architectural Layout Curation",
       ],
-      technologies: ["Next.js", "Tailwind CSS", "GSAP ScrollTrigger", "TypeScript"],
+      technologies: ["Next.js", "Tailwind CSS", "GSAP ScrollTrigger", "Framer Motion"],
       deliverables: [
-        "Editorial Digital Monograph Architecture",
-        "Interactive Architectural Elevation Blueprint Overlays",
-        "Typography & Grid Design System",
-        "High-Resolution Photographic Showcase Gallery",
+        "Monolithic Architecture Archive",
+        "Precision Dimension Blueprint Viewer",
+        "Material Texture Sample Inspector",
+        "Editorial Typography Master Hierarchy",
       ],
       visualHighlights: [
-        "Architectural elevation blueprint overlays",
-        "Smooth multi-axis parallax depth",
-        "Zero-distraction editorial minimalism",
+        "Chiaroscuro shadow gradients mimicking sunlight on raw concrete",
+        "Architectural blueprint grid coordinates",
+        "Asymmetrical column typography layout",
       ],
     },
     {
-      id: "velocity-motion",
-      title: "VELOCITY MOTION",
-      subtitle: "Aerodynamic Kinetic Study & High-Performance Visual Production",
-      conceptBadge: "STUDIO CONCEPT ARCHIVE",
+      id: "titan-horology",
+      title: "TITAN PRECISION TIMEPIECES",
+      subtitle: "Micro-Mechanical Horology & Kinetic Chronograph Engineering",
+      classification: "concept",
+      badgeText: "STUDIO R&D // CONCEPT PROTOTYPE",
       category: "motion",
-      categoryLabel: "MOTION CONTENT & BRAND FILM",
+      categoryLabel: "MOTION CONTENT & 3D KINETICS",
       year: "2024",
       overview:
-        "A high-octane kinetic motion reel and dynamic typography campaign capturing aerodynamic performance, instant torque, and electric acceleration.",
+        "A luxury chronograph digital launch experience highlighting microscopic tourbillon escapements, gear-train mechanics, and kinetic countdown typography.",
       problem:
-        "Automotive digital marketing frequently leans on cliché beauty shots without transmitting the tactile visceral speed, aerodynamic downforce, and telemetry precision of modern hyper-cars.",
+        "Horological craftsmanship requires tactile appreciation of microscopic gearing, jewels, and escapement movements that static photography fails to capture.",
       creativeDirection:
-        "Asphalt blacks, burnt orange brake rotor glow (#F06A28), precision chronograph telemetry dials, and frame-locked kinetic typography.",
+        "Deep brushed anthracite metal, fiery crimson indicator needles, laser-etched scale rings, and synchronous mechanical ticking physics.",
       architecture:
-        "Video post-production and motion graphics created with After Effects and Blender, wrapped in an interactive Next.js scrub-wheel telemetry frame.",
+        "Interactive Canvas 2D rotating gear train synchronized with high-precision timestamp loops and physics-based momentum damping.",
       servicesInvolved: [
-        "Creative Motion Design & Brand Film",
-        "Art Direction & Visual Systems",
+        "Creative Motion Design",
+        "3D Kinetic Typography",
+        "Interactive Hardware Simulation",
       ],
-      technologies: ["After Effects", "Blender 3D", "Next.js", "Tailwind CSS", "DaVinci Resolve"],
+      technologies: ["Canvas 2D", "Next.js", "TypeScript", "GSAP Timeline", "Tailwind CSS"],
       deliverables: [
-        "Cinematic 4K Brand Film & Kinetic Teasers",
-        "Interactive Telemetry Speed Dial Component",
-        "Multi-Format Social Cutdowns (9:16 & 16:9)",
-        "Precision Spatial Sound Design Track",
+        "Interactive Caliber Gear-Train Canvas",
+        "High-Precision Chronometer Stopwatch Module",
+        "Exploded Micro-Mechanical Component Viewer",
+        "Tactile Haptic-Style Click Audio Feedback",
       ],
       visualHighlights: [
-        "Frame-accurate video scrub mechanics",
-        "Burnt orange aerodynamic telemetry vector overlay",
-        "Custom kinetic typography synchronized to audio cuts",
+        "Live procedural rotating concentric gear wheels",
+        "Micro-metric scale typography and dial markings",
+        "Mechanical tactile audio clicks on interaction",
       ],
     },
   ];
 
-  const categories = [
-    { id: "all", label: "ALL WORKS" },
-    { id: "web", label: "WEB ARCHITECTURE" },
-    { id: "motion", label: "MOTION CONTENT" },
-    { id: "creative", label: "ART DIRECTION" },
-    { id: "ai", label: "AI WORKFLOWS" },
-  ];
-
-  const filteredProjects =
-    selectedFilter === "all"
-      ? projects
-      : projects.filter((p) => p.category === selectedFilter);
-
-  const openProjectModal = (project: Project) => {
-    playReveal();
-    setActiveModalProject(project);
-    document.body.style.overflow = "hidden";
-  };
+  const filteredProjects = projects.filter((p) => {
+    if (selectedFilter === "all") return true;
+    return p.classification === selectedFilter;
+  });
 
   const closeProjectModal = () => {
     playModalClose();
@@ -238,489 +275,404 @@ export function SelectedWorkSection() {
   // Bespoke Project Visual Artwork Component
   const ProjectVisual = ({ id }: { id: string }) => {
     switch (id) {
-      case "kinetic-runway":
+      case "signboard-platform":
+        return (
+          <div className="w-full h-full bg-[#0A0A0A] relative flex items-center justify-center overflow-hidden p-6 select-none">
+            <div className="absolute inset-0 bg-grid-pattern opacity-30" />
+            <div className="relative z-10 flex flex-col items-center">
+              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#B5121B] to-[#F06A28] flex items-center justify-center shadow-[0_0_35px_rgba(181,18,27,0.5)] mb-3">
+                <span className="font-serif font-black text-white text-4xl">S</span>
+              </div>
+              <span className="font-mono text-[10px] text-neutral-400 tracking-[0.3em] uppercase">
+                WEBGL KINEMATICS ENGINE
+              </span>
+            </div>
+            <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between font-mono text-[9px] text-neutral-500">
+              <span>12,000 PARTICLES</span>
+              <span className="text-emerald-400">0MS LATENCY</span>
+            </div>
+          </div>
+        );
+
+      case "suhith-identity":
         return (
           <div className="w-full h-full bg-[#0D0D0D] relative flex items-center justify-center overflow-hidden p-6 select-none">
-            {/* Coordinate Background Grid */}
-            <div className="absolute inset-0 bg-grid-pattern opacity-30" />
-            
-            {/* Ambient Lighting Gradient */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-[#B5121B]/30 rounded-full blur-3xl pointer-events-none" />
-
-            {/* Wireframe Spatial Geometry */}
-            <svg viewBox="0 0 320 200" className="w-full h-full relative z-10 opacity-85 group-hover:scale-105 transition-transform duration-700">
-              <defs>
-                <linearGradient id="krGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#B5121B" />
-                  <stop offset="100%" stopColor="#F06A28" />
-                </linearGradient>
-              </defs>
-              <g stroke="rgba(255,255,255,0.15)" strokeWidth="0.75" fill="none">
-                <ellipse cx="160" cy="100" rx="110" ry="40" />
-                <ellipse cx="160" cy="100" rx="85" ry="30" />
-                <ellipse cx="160" cy="100" rx="60" ry="20" />
-                <line x1="50" y1="100" x2="270" y2="100" />
-                <line x1="160" y1="30" x2="160" y2="170" />
-              </g>
-              {/* Dynamic Mesh Curves */}
-              <path
-                d="M 60 120 Q 110 50 160 110 T 260 80"
-                fill="none"
-                stroke="url(#krGrad)"
-                strokeWidth="2"
-              />
-              <path
-                d="M 70 140 Q 130 70 170 130 T 250 100"
-                fill="none"
-                stroke="rgba(240, 106, 40, 0.6)"
-                strokeWidth="1.2"
-                strokeDasharray="4 3"
-              />
-              {/* Coordinate Crosshairs */}
-              <circle cx="160" cy="110" r="4" fill="#B5121B" />
-              <circle cx="170" cy="130" r="3" fill="#F06A28" />
-            </svg>
-
-            {/* Technical Metadata Stamp */}
-            <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between font-mono text-[9px] text-neutral-400 z-10">
-              <span>COORD: [X: 142.8 | Y: 89.4]</span>
-              <span className="text-[#B5121B] font-semibold">GLSL CLOTH SIMULATION</span>
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent z-10" />
+            <div
+              className="absolute inset-0 bg-cover bg-center opacity-70 group-hover:scale-105 transition-transform duration-700"
+              style={{ backgroundImage: `url(${process.env.NEXT_PUBLIC_BASE_PATH || ""}/images/suhith.jpg)` }}
+            />
+            <div className="relative z-20 text-center">
+              <span className="font-serif text-2xl font-bold uppercase tracking-tight text-white block">
+                KKS SUHITH
+              </span>
+              <span className="font-mono text-[10px] text-[#F06A28] uppercase tracking-widest font-semibold mt-1 block">
+                CREATIVE DIRECTION
+              </span>
             </div>
           </div>
         );
 
       case "aura-cognitive-labs":
         return (
-          <div className="w-full h-full bg-[#0C0B0A] relative flex items-center justify-center overflow-hidden p-6 select-none">
-            <div className="absolute inset-0 bg-grid-pattern opacity-30" />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-[#F06A28]/25 rounded-full blur-3xl pointer-events-none" />
-
-            <svg viewBox="0 0 320 200" className="w-full h-full relative z-10 opacity-85 group-hover:scale-105 transition-transform duration-700">
-              <defs>
-                <linearGradient id="auraGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#F06A28" />
-                  <stop offset="100%" stopColor="#FF853E" />
-                </linearGradient>
-              </defs>
-              {/* Force Directed Graph Edges */}
-              <g stroke="rgba(240,106,40,0.3)" strokeWidth="0.8">
-                <line x1="80" y1="60" x2="160" y2="100" />
-                <line x1="80" y1="140" x2="160" y2="100" />
-                <line x1="160" y1="100" x2="240" y2="70" />
-                <line x1="160" y1="100" x2="250" y2="135" />
-                <line x1="80" y1="60" x2="120" y2="40" />
-                <line x1="240" y1="70" x2="280" y2="60" />
-                <line x1="250" y1="135" x2="290" y2="150" />
-              </g>
-              {/* Nodes */}
-              <circle cx="160" cy="100" r="10" fill="url(#auraGrad)" />
-              <circle cx="160" cy="100" r="18" fill="none" stroke="rgba(240,106,40,0.4)" strokeDasharray="3 3" />
-              <circle cx="80" cy="60" r="6" fill="#B5121B" />
-              <circle cx="80" cy="140" r="6" fill="#B5121B" />
-              <circle cx="240" cy="70" r="7" fill="#F06A28" />
-              <circle cx="250" cy="135" r="7" fill="#F06A28" />
-              <circle cx="120" cy="40" r="4" fill="rgba(255,255,255,0.6)" />
-              <circle cx="280" cy="60" r="4" fill="rgba(255,255,255,0.6)" />
-              <circle cx="290" cy="150" r="4" fill="rgba(255,255,255,0.6)" />
-            </svg>
-
-            <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between font-mono text-[9px] text-neutral-400 z-10">
-              <span>LATENT CLUSTERS: 10,000 NODES</span>
-              <span className="text-[#F06A28] font-semibold">TENSOR TOPOLOGY GRAPH</span>
+          <div className="w-full h-full bg-[#080808] relative flex items-center justify-center overflow-hidden p-6 select-none">
+            <div className="absolute inset-0 bg-grid-pattern opacity-20" />
+            {/* Procedural Neural Orbit */}
+            <div className="relative z-10 flex items-center justify-center">
+              <div className="w-32 h-32 rounded-full border border-[#F06A28]/40 flex items-center justify-center animate-spin" style={{ animationDuration: "25s" }}>
+                <div className="w-20 h-20 rounded-full border border-[#B5121B]/60 flex items-center justify-center">
+                  <div className="w-3 h-3 rounded-full bg-[#F06A28] shadow-[0_0_15px_#F06A28]" />
+                </div>
+              </div>
+            </div>
+            <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between font-mono text-[9px] text-neutral-500">
+              <span>LATENT VECTOR 1536-D</span>
+              <span className="text-[#F06A28]">AUTONOMOUS AGENTS</span>
             </div>
           </div>
         );
 
       case "archetype-sound":
         return (
-          <div className="w-full h-full bg-[#0B0D0F] relative flex items-center justify-center overflow-hidden p-6 select-none">
-            <div className="absolute inset-0 bg-grid-pattern opacity-30" />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-white/10 rounded-full blur-3xl pointer-events-none" />
-
-            <svg viewBox="0 0 320 200" className="w-full h-full relative z-10 opacity-85 group-hover:scale-105 transition-transform duration-700">
-              {/* Acoustic Concentric Baffle Rings */}
-              <g stroke="rgba(255,255,255,0.12)" strokeWidth="1" fill="none">
-                <circle cx="160" cy="100" r="70" />
-                <circle cx="160" cy="100" r="50" />
-                <circle cx="160" cy="100" r="30" />
-                <circle cx="160" cy="100" r="14" fill="#B5121B" />
-              </g>
-              {/* Procedural Waveform */}
-              <path
-                d="M 40 100 Q 70 40 100 100 T 160 100 T 220 100 T 280 100"
-                fill="none"
-                stroke="#EDEDED"
-                strokeWidth="1.5"
-              />
-              <path
-                d="M 40 100 Q 70 160 100 100 T 160 100 T 220 100 T 280 100"
-                fill="none"
-                stroke="rgba(181, 18, 27, 0.7)"
-                strokeWidth="1.2"
-                strokeDasharray="2 3"
-              />
-            </svg>
-
-            <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between font-mono text-[9px] text-neutral-400 z-10">
-              <span>FREQUENCY: 432 Hz // -12dB</span>
-              <span className="text-white font-semibold">WEB AUDIO SYNTHESIS</span>
+          <div className="w-full h-full bg-[#0A0A0A] relative flex items-center justify-center overflow-hidden p-6 select-none">
+            <div className="relative z-10 w-full max-w-[200px] flex items-end justify-center gap-1.5 h-20">
+              {[35, 65, 95, 45, 80, 100, 60, 30, 75, 40, 90, 50, 70].map((h, i) => (
+                <div
+                  key={i}
+                  className="w-1.5 bg-gradient-to-t from-[#B5121B] to-[#F06A28] rounded-full"
+                  style={{ height: `${h}%` }}
+                />
+              ))}
+            </div>
+            <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between font-mono text-[9px] text-neutral-500">
+              <span>FREQUENCY 432 HZ</span>
+              <span>WEB AUDIO API</span>
             </div>
           </div>
         );
 
       case "obsidian-architects":
         return (
-          <div className="w-full h-full bg-[#0A0A0A] relative flex items-center justify-center overflow-hidden p-6 select-none">
-            <div className="absolute inset-0 bg-grid-pattern opacity-25" />
-
-            <svg viewBox="0 0 320 200" className="w-full h-full relative z-10 opacity-85 group-hover:scale-105 transition-transform duration-700">
-              {/* Brutalist Monolithic Isometric Prism */}
-              <g stroke="rgba(255,255,255,0.2)" strokeWidth="1">
-                {/* Front face */}
-                <polygon points="120,70 180,40 180,140 120,170" fill="rgba(30,30,30,0.8)" />
-                {/* Top face */}
-                <polygon points="120,70 180,40 230,65 170,95" fill="rgba(50,50,50,0.9)" />
-                {/* Right face with dramatic chiaroscuro */}
-                <polygon points="170,95 230,65 230,165 170,195" fill="rgba(15,15,15,0.95)" stroke="#B5121B" strokeWidth="1" />
-              </g>
-              {/* Architectural Coordinate Lines */}
-              <line x1="80" y1="170" x2="260" y2="170" stroke="rgba(255,255,255,0.2)" strokeDasharray="4 4" />
-              <line x1="180" y1="20" x2="180" y2="185" stroke="rgba(240,106,40,0.4)" strokeWidth="0.8" />
-            </svg>
-
-            <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between font-mono text-[9px] text-neutral-400 z-10">
-              <span>ELEVATION: +38.4m // NORTH AXIS</span>
-              <span className="text-neutral-300 font-semibold">BRUTALIST MONOLITH</span>
+          <div className="w-full h-full bg-[#0C0C0C] relative flex items-center justify-center overflow-hidden p-6 select-none">
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-36 h-36 border border-white/20 rotate-45 flex items-center justify-center">
+                <div className="w-24 h-24 border border-[#B5121B]/40" />
+              </div>
+            </div>
+            <div className="relative z-10 text-center font-mono text-[10px] uppercase tracking-[0.25em] text-neutral-300">
+              MONUMENTAL SCALE
+            </div>
+            <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between font-mono text-[9px] text-neutral-500">
+              <span>BRUTALIST ARCHIVE</span>
+              <span>GRID COORD 04</span>
             </div>
           </div>
         );
 
-      case "velocity-motion":
+      case "titan-horology":
         return (
-          <div className="w-full h-full bg-[#0A0808] relative flex items-center justify-center overflow-hidden p-6 select-none">
-            <div className="absolute inset-0 bg-grid-pattern opacity-30" />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-[#F06A28]/20 rounded-full blur-3xl pointer-events-none" />
-
-            <svg viewBox="0 0 320 200" className="w-full h-full relative z-10 opacity-85 group-hover:scale-105 transition-transform duration-700">
-              <defs>
-                <linearGradient id="velGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#B5121B" stopOpacity="0" />
-                  <stop offset="60%" stopColor="#F06A28" stopOpacity="0.8" />
-                  <stop offset="100%" stopColor="#FFFFFF" stopOpacity="1" />
-                </linearGradient>
-              </defs>
-              {/* Aerodynamic Streamlines */}
-              <path d="M 40 60 C 120 60 160 85 280 85" fill="none" stroke="url(#velGrad)" strokeWidth="2.5" />
-              <path d="M 50 85 C 130 85 180 110 290 110" fill="none" stroke="url(#velGrad)" strokeWidth="3" />
-              <path d="M 60 110 C 140 110 190 135 270 135" fill="none" stroke="url(#velGrad)" strokeWidth="1.8" />
-              {/* Telemetry Chronograph dial */}
-              <circle cx="240" cy="110" r="32" fill="none" stroke="rgba(240,106,40,0.4)" strokeWidth="1" strokeDasharray="5 3" />
-              <circle cx="240" cy="110" r="4" fill="#F06A28" />
-            </svg>
-
-            <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between font-mono text-[9px] text-neutral-400 z-10">
-              <span>TELEMETRY: 0-100 KM/H 2.1S</span>
-              <span className="text-[#F06A28] font-semibold">AERODYNAMIC KINETIC REEL</span>
+          <div className="w-full h-full bg-[#080808] relative flex items-center justify-center overflow-hidden p-6 select-none">
+            <div className="relative z-10 flex items-center justify-center">
+              <div className="w-28 h-28 rounded-full border-2 border-white/15 flex items-center justify-center">
+                <div className="w-20 h-20 rounded-full border border-dashed border-[#F06A28]/60 flex items-center justify-center">
+                  <div className="w-1 h-10 bg-[#B5121B] rounded-full origin-bottom rotate-45" />
+                </div>
+              </div>
+            </div>
+            <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between font-mono text-[9px] text-neutral-500">
+              <span>CALIBER 01 / TOURBILLON</span>
+              <span className="text-white">CHRONOMETER</span>
             </div>
           </div>
         );
 
       default:
         return (
-          <div className="w-full h-full bg-neutral-900 flex items-center justify-center font-mono text-xs text-neutral-400">
-            STUDIO ARCHIVE VISUAL
+          <div className="w-full h-full bg-neutral-900 flex items-center justify-center text-neutral-500 font-mono text-xs">
+            CONCEPT
           </div>
         );
     }
   };
 
   return (
-    <section id="work" className="relative py-28 sm:py-36 px-6 sm:px-8 bg-[#090909] text-white z-10 border-t border-white/10">
-      <div className="max-w-7xl mx-auto">
-        {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
+    <section id="work" className="relative py-28 sm:py-36 px-6 sm:px-10 lg:px-16 bg-[#070707] text-white z-10 border-t border-white/5">
+      <div className="max-w-[1540px] mx-auto">
+        {/* Section Header & Architectural Filters */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6 border-b border-white/5 pb-8">
           <div>
-            <div className="flex items-center gap-2 mb-3">
-              <span className="font-mono text-xs uppercase tracking-[0.3em] text-[#F06A28]">
-                SECTION D // SELECTED WORK
-              </span>
+            <div className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.3em] text-[#F06A28] mb-3">
+              <span>PORTFOLIO // SECTION 02</span>
             </div>
             <h2 className="font-serif text-3xl sm:text-5xl md:text-6xl font-bold uppercase tracking-tight text-white">
-              STUDIO ARCHIVE.
+              SELECTED WORK.
             </h2>
           </div>
 
-          <p className="font-sans text-neutral-300 text-xs sm:text-sm leading-relaxed max-w-md font-light">
-            Bespoke concept works engineered by Signboard Studio to demonstrate advanced WebGL interaction, motion kinetics, and high-performance frontend architecture.
-          </p>
-        </div>
-
-        {/* Filter Navigation */}
-        <div className="flex flex-wrap gap-2 mb-12 border-b border-white/10 pb-6">
-          {categories.map((cat) => (
+          {/* Classification Filter Tabs: All, Real Implementations, Studio Concepts */}
+          <div className="flex flex-wrap items-center gap-2 font-mono text-xs uppercase tracking-wider">
             <button
-              key={cat.id}
               onClick={() => {
                 playTabSwitch();
-                setSelectedFilter(cat.id);
+                setSelectedFilter("all");
               }}
-              onMouseEnter={playHover}
-              className={`px-4 py-2 rounded-full font-mono text-xs uppercase tracking-wider transition-all duration-300 ${
-                selectedFilter === cat.id
-                  ? "bg-gradient-to-r from-[#B5121B] to-[#F06A28] text-white font-bold shadow-md"
-                  : "bg-white/[0.03] text-neutral-400 hover:text-white hover:bg-white/[0.08] border border-white/5"
+              className={`px-4 py-2 rounded-full border transition-all ${
+                selectedFilter === "all"
+                  ? "bg-white text-black font-bold border-white"
+                  : "bg-white/[0.03] text-neutral-400 border-white/10 hover:text-white hover:border-white/20"
               }`}
             >
-              {cat.label}
+              ALL WORKS ({projects.length})
             </button>
-          ))}
+
+            <button
+              onClick={() => {
+                playTabSwitch();
+                setSelectedFilter("real");
+              }}
+              className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all ${
+                selectedFilter === "real"
+                  ? "bg-emerald-500/20 text-emerald-300 font-bold border-emerald-500/50"
+                  : "bg-white/[0.03] text-neutral-400 border-white/10 hover:text-white hover:border-white/20"
+              }`}
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+              <span>LIVE PRODUCTIONS (2)</span>
+            </button>
+
+            <button
+              onClick={() => {
+                playTabSwitch();
+                setSelectedFilter("concept");
+              }}
+              className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all ${
+                selectedFilter === "concept"
+                  ? "bg-[#F06A28]/20 text-orange-300 font-bold border-[#F06A28]/50"
+                  : "bg-white/[0.03] text-neutral-400 border-white/10 hover:text-white hover:border-white/20"
+              }`}
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-[#F06A28]" />
+              <span>STUDIO R&D CONCEPTS (4)</span>
+            </button>
+          </div>
         </div>
 
-        {/* Projects Grid: Unified 16:10 Thumbnail Architecture */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          <AnimatePresence mode="popLayout">
-            {filteredProjects.map((project, index) => (
+        {/* Asymmetrical Editorial Portfolio Layout */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-stretch">
+          {filteredProjects.map((project, idx) => {
+            // Asymmetrical layout calculation: alternate between wide spans (col-span-7 / col-span-5)
+            const isWide = idx % 3 === 0;
+            const spanClass = isWide ? "md:col-span-7" : idx % 3 === 1 ? "md:col-span-5" : "md:col-span-12 lg:col-span-6";
+
+            return (
               <motion.div
                 key={project.id}
                 layout
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.4, delay: index * 0.05 }}
-                whileHover={{ y: -6 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => openProjectModal(project)}
-                onMouseEnter={playHover}
-                className="group relative flex flex-col rounded-3xl bg-[#0F0F0F] border border-white/10 hover:border-[#F06A28]/50 overflow-hidden cursor-pointer transition-all duration-500 hover:shadow-[0_10px_30px_rgba(240,106,40,0.15)]"
-                data-cursor-text="VIEW"
+                transition={{ duration: 0.5, delay: idx * 0.08 }}
+                onClick={() => {
+                  playReveal();
+                  setActiveModalProject(project);
+                }}
+                className={`${spanClass} group cursor-pointer flex flex-col justify-between p-7 sm:p-9 rounded-3xl bg-[#0D0D0D] border border-white/10 hover:border-white/25 transition-all duration-300 hover:shadow-[0_0_35px_rgba(0,0,0,0.8)]`}
               >
-                {/* Unified 16:10 Thumbnail Container */}
-                <div className="relative w-full aspect-[16/10] overflow-hidden bg-black border-b border-white/10">
-                  <ProjectVisual id={project.id} />
-
-                  {/* Top Badges */}
-                  <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-20 pointer-events-none">
-                    <span className="font-mono text-[9px] tracking-widest px-2.5 py-1 rounded-full bg-black/80 backdrop-blur-md border border-white/15 text-orange-400 font-semibold uppercase">
-                      {project.conceptBadge}
-                    </span>
-
-                    <span className="font-mono text-[9px] tracking-widest px-2 py-0.5 rounded-full bg-black/70 backdrop-blur-md text-neutral-300 border border-white/10 uppercase">
-                      {project.year}
-                    </span>
-                  </div>
-
-                  {/* Quick View Button */}
-                  <div className="absolute bottom-3 right-3 w-8 h-8 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white group-hover:bg-[#B5121B] group-hover:border-[#F06A28] group-hover:scale-110 transition-all duration-300 z-20">
-                    <ArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                  </div>
-                </div>
-
-                {/* Project Metadata */}
-                <div className="p-6 flex flex-col justify-between flex-1">
-                  <div>
-                    <div className="font-mono text-[10px] text-[#F06A28] uppercase tracking-widest mb-1.5 font-semibold">
-                      {project.categoryLabel}
-                    </div>
-
-                    <h3 className="font-serif text-2xl font-bold uppercase tracking-tight text-white group-hover:text-[#F06A28] transition-colors mb-2">
-                      {project.title}
-                    </h3>
-
-                    <p className="font-sans text-neutral-300 text-xs sm:text-sm leading-relaxed font-light line-clamp-2">
-                      {project.subtitle}
-                    </p>
-                  </div>
-
-                  <div className="mt-5 pt-4 border-t border-white/5 flex flex-wrap gap-1.5">
-                    {project.technologies.slice(0, 3).map((tech) => (
-                      <span
-                        key={tech}
-                        className="font-mono text-[10px] px-2 py-0.5 rounded bg-white/5 text-neutral-400"
-                      >
-                        {tech}
-                      </span>
-                    ))}
-                    {project.technologies.length > 3 && (
-                      <span className="font-mono text-[10px] px-2 py-0.5 rounded bg-white/5 text-neutral-400">
-                        +{project.technologies.length - 3}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
-      </div>
-
-      {/* Case Study Specification Modal */}
-      <AnimatePresence>
-        {activeModalProject && (
-          <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/85 backdrop-blur-md overflow-y-auto"
-            onClick={closeProjectModal}
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.88, y: 25 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              transition={{ type: "spring", damping: 25, stiffness: 350 }}
-              onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-4xl bg-[#111111] border border-white/15 rounded-3xl p-6 sm:p-10 my-8 shadow-2xl max-h-[90vh] overflow-y-auto"
-            >
-              {/* Modal Top Bar */}
-              <div className="flex items-start justify-between pb-6 border-b border-white/10 mb-6">
                 <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="font-mono text-xs px-2.5 py-0.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-[#F06A28] font-semibold uppercase">
-                      {activeModalProject.conceptBadge}
+                  {/* Top Metadata Header */}
+                  <div className="flex items-center justify-between pb-4 border-b border-white/5 font-mono text-[11px] mb-5">
+                    <span
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-semibold uppercase tracking-wider text-[10px] ${
+                        project.classification === "real"
+                          ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                          : "bg-[#F06A28]/10 text-[#F06A28] border border-[#F06A28]/20"
+                      }`}
+                    >
+                      <span className={`w-1.5 h-1.5 rounded-full ${project.classification === "real" ? "bg-emerald-400" : "bg-[#F06A28]"}`} />
+                      {project.badgeText}
                     </span>
-                    <span className="font-mono text-xs text-neutral-400">
-                      {activeModalProject.year} &mdash; {activeModalProject.categoryLabel}
-                    </span>
+
+                    <span className="text-neutral-500 tracking-widest">{project.year}</span>
                   </div>
 
-                  <h2 className="font-serif text-3xl sm:text-4xl font-bold uppercase tracking-tight text-white">
-                    {activeModalProject.title}
-                  </h2>
-                  <p className="font-sans text-neutral-300 text-sm mt-1">
-                    {activeModalProject.subtitle}
+                  {/* Artwork Showcase Box */}
+                  <div className="w-full h-56 sm:h-72 rounded-2xl overflow-hidden mb-6 border border-white/10 relative">
+                    <ProjectVisual id={project.id} />
+                  </div>
+
+                  {/* Typographic Title & Overview */}
+                  <h3 className="font-serif text-2xl sm:text-3xl font-bold uppercase tracking-tight text-white group-hover:text-[#F06A28] transition-colors mb-2 flex items-center justify-between">
+                    <span>{project.title}</span>
+                    <ArrowUpRight className="w-5 h-5 text-neutral-500 group-hover:text-white transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
+                  </h3>
+
+                  <p className="font-mono text-xs text-neutral-400 uppercase tracking-wider mb-4">
+                    {project.subtitle}
+                  </p>
+
+                  <p className="font-sans text-neutral-300 text-sm font-light leading-relaxed line-clamp-3">
+                    {project.overview}
                   </p>
                 </div>
 
-                <button
-                  onClick={closeProjectModal}
-                  onMouseEnter={playHover}
-                  className="p-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-neutral-300 hover:text-white transition-colors"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
+                {/* Footer Tech Stack Pills */}
+                <div className="pt-6 mt-6 border-t border-white/5 flex flex-wrap gap-2">
+                  {project.technologies.slice(0, 4).map((tech) => (
+                    <span
+                      key={tech}
+                      className="px-2.5 py-0.5 rounded-md bg-white/[0.03] border border-white/5 font-mono text-[10px] text-neutral-400 uppercase tracking-wider"
+                    >
+                      {tech}
+                    </span>
+                  ))}
+                  {project.technologies.length > 4 && (
+                    <span className="px-2 py-0.5 font-mono text-[10px] text-neutral-500">
+                      +{project.technologies.length - 4}
+                    </span>
+                  )}
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+      </div>
 
-              {/* Modal Artwork Viewport (16:9 Aspect Ratio) */}
-              <div className="w-full aspect-[16/9] max-h-72 rounded-2xl overflow-hidden border border-white/10 mb-8 bg-black">
-                <ProjectVisual id={activeModalProject.id} />
-              </div>
-
-              {/* Honest Concept Disclaimer Notice */}
-              <div className="p-4 rounded-xl bg-white/[0.02] border border-white/10 mb-8 flex items-start gap-3">
-                <ShieldAlert className="w-4 h-4 text-[#F06A28] shrink-0 mt-0.5" />
-                <p className="font-mono text-xs text-neutral-300 leading-relaxed">
-                  <strong>STUDIO SPECIFICATION NOTICE:</strong> This project is an original conceptual architecture produced by Signboard Studio to validate WebGL shader interaction, motion dynamics, and frontend systems. No client names or performance statistics are fabricated.
-                </p>
-              </div>
-
-              {/* Case Study Content Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                {/* Column 1: Problem, Solution & Creative Direction */}
-                <div className="space-y-6">
+      {/* Deep-Dive Case Study Modal */}
+      <AnimatePresence>
+        {activeModalProject && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/85 backdrop-blur-xl"
+            onClick={closeProjectModal}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.3 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-4xl max-h-[90vh] bg-[#0E0E0E] border border-white/15 rounded-3xl p-6 sm:p-10 text-white shadow-2xl relative overflow-y-auto flex flex-col justify-between"
+            >
+              <div>
+                {/* Modal Header */}
+                <div className="flex items-start justify-between pb-6 border-b border-white/10 gap-4">
                   <div>
-                    <h3 className="font-mono text-xs uppercase tracking-[0.25em] text-[#F06A28] mb-2 font-semibold">
-                      01 // THE CHALLENGE
+                    <span
+                      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full font-mono text-xs font-semibold uppercase tracking-wider mb-2 ${
+                        activeModalProject.classification === "real"
+                          ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                          : "bg-[#F06A28]/10 text-[#F06A28] border border-[#F06A28]/20"
+                      }`}
+                    >
+                      {activeModalProject.badgeText}
+                    </span>
+                    <h3 className="font-serif text-3xl sm:text-4xl font-bold uppercase tracking-tight text-white">
+                      {activeModalProject.title}
                     </h3>
-                    <p className="font-sans text-neutral-300 text-sm leading-relaxed font-light">
-                      {activeModalProject.problem}
+                    <p className="font-mono text-xs text-neutral-400 uppercase tracking-wider mt-1">
+                      {activeModalProject.subtitle}
                     </p>
                   </div>
 
+                  <button
+                    onClick={closeProjectModal}
+                    className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-neutral-300 hover:text-white transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                {/* Classification Explicit Notice */}
+                {activeModalProject.classification === "concept" ? (
+                  <div className="my-5 p-3.5 rounded-xl bg-orange-950/40 border border-orange-500/30 text-orange-200 font-mono text-xs flex items-center gap-2.5">
+                    <Compass className="w-4 h-4 text-[#F06A28] shrink-0" />
+                    <span>
+                      STUDIO R&D EXPLORATION: This project represents an internal architectural prototype exploring speculative digital interactions, not a client commission.
+                    </span>
+                  </div>
+                ) : (
+                  <div className="my-5 p-3.5 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-emerald-200 font-mono text-xs flex items-center gap-2.5">
+                    <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <span>
+                      PRODUCTION DEPLOYMENT: Verified live digital architecture engineered by Signboard Studio.
+                    </span>
+                  </div>
+                )}
+
+                {/* Modal Visual Area */}
+                <div className="w-full h-64 sm:h-80 rounded-2xl overflow-hidden border border-white/10 mb-8">
+                  <ProjectVisual id={activeModalProject.id} />
+                </div>
+
+                {/* Detailed Sections */}
+                <div className="space-y-6 font-sans text-neutral-300 text-sm sm:text-base leading-relaxed">
                   <div>
-                    <h3 className="font-mono text-xs uppercase tracking-[0.25em] text-[#B5121B] mb-2 font-semibold">
-                      02 // CREATIVE DIRECTION
-                    </h3>
-                    <p className="font-sans text-neutral-300 text-sm leading-relaxed font-light">
-                      {activeModalProject.creativeDirection}
-                    </p>
+                    <h4 className="font-mono text-xs uppercase tracking-widest text-white mb-2 font-semibold">
+                      THE COMMERCIAL PROBLEM
+                    </h4>
+                    <p className="font-light">{activeModalProject.problem}</p>
                   </div>
 
                   <div>
-                    <h3 className="font-mono text-xs uppercase tracking-[0.25em] text-white mb-2 font-semibold">
-                      03 // SYSTEM ARCHITECTURE
-                    </h3>
-                    <p className="font-sans text-neutral-300 text-sm leading-relaxed font-light">
+                    <h4 className="font-mono text-xs uppercase tracking-widest text-[#F06A28] mb-2 font-semibold">
+                      CREATIVE DIRECTION & ARCHITECTURE
+                    </h4>
+                    <p className="font-light">{activeModalProject.creativeDirection}</p>
+                    <p className="font-mono text-xs text-neutral-400 bg-white/[0.02] p-4 rounded-xl border border-white/5 mt-3">
                       {activeModalProject.architecture}
                     </p>
                   </div>
-                </div>
 
-                {/* Column 2: Deliverables & Tech Stack */}
-                <div className="space-y-6">
-                  <div>
-                    <h3 className="font-mono text-xs uppercase tracking-[0.25em] text-[#F06A28] mb-3 font-semibold">
-                      SERVICES APPLIED
-                    </h3>
-                    <div className="flex flex-wrap gap-2">
-                      {activeModalProject.servicesInvolved.map((serv) => (
-                        <span
-                          key={serv}
-                          className="font-mono text-xs px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-neutral-200"
-                        >
-                          {serv}
-                        </span>
-                      ))}
+                  {/* Deliverables & Highlights Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4 border-t border-white/5 font-mono text-xs">
+                    <div>
+                      <h4 className="text-white uppercase tracking-wider mb-2">KEY DELIVERABLES</h4>
+                      <ul className="space-y-1.5 text-neutral-400">
+                        {activeModalProject.deliverables.map((item, i) => (
+                          <li key={i} className="flex items-center gap-2">
+                            <span className="w-1 h-1 rounded-full bg-[#F06A28]" />
+                            <span>{item}</span>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
-                  </div>
 
-                  <div>
-                    <h3 className="font-mono text-xs uppercase tracking-[0.25em] text-[#B5121B] mb-3 font-semibold">
-                      ENGINEERING TOOLS
-                    </h3>
-                    <div className="flex flex-wrap gap-2">
-                      {activeModalProject.technologies.map((tech) => (
-                        <span
-                          key={tech}
-                          className="font-mono text-xs px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-neutral-300"
-                        >
-                          {tech}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <h3 className="font-mono text-xs uppercase tracking-[0.25em] text-emerald-400 mb-3 font-semibold">
-                      CONCRETE DELIVERABLES
-                    </h3>
-                    <div className="space-y-2">
-                      {activeModalProject.deliverables.map((del) => (
-                        <div key={del} className="flex items-center gap-2 text-xs sm:text-sm text-neutral-200">
-                          <CheckCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                          <span>{del}</span>
-                        </div>
-                      ))}
+                    <div>
+                      <h4 className="text-white uppercase tracking-wider mb-2">TECH ARCHITECTURE</h4>
+                      <div className="flex flex-wrap gap-1.5">
+                        {activeModalProject.technologies.map((t) => (
+                          <span key={t} className="px-2.5 py-1 rounded bg-white/[0.04] text-neutral-300 border border-white/5">
+                            {t}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Modal Footer CTA */}
-              <div className="pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <span className="font-mono text-xs text-neutral-400">
-                  Ready to architect a project with this level of craft?
+              {/* Modal Footer */}
+              <div className="mt-8 pt-6 border-t border-white/10 flex items-center justify-between">
+                <span className="font-mono text-xs text-neutral-500 uppercase">
+                  ARCHIVE ENTRY // {activeModalProject.year}
                 </span>
 
-                <div className="flex items-center gap-3 w-full sm:w-auto">
+                {activeModalProject.liveUrl ? (
+                  <a
+                    href={activeModalProject.liveUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-[#B5121B] to-[#F06A28] text-white font-mono text-xs uppercase tracking-widest font-semibold"
+                  >
+                    <span>OPEN LIVE PLATFORM</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                ) : (
                   <button
                     onClick={closeProjectModal}
-                    onMouseEnter={playHover}
-                    className="flex-1 sm:flex-initial px-5 py-2.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 font-mono text-xs uppercase tracking-wider text-neutral-300 transition-colors"
+                    className="px-5 py-2.5 rounded-full bg-white/10 hover:bg-white/15 text-white font-mono text-xs uppercase tracking-widest font-medium"
                   >
-                    Close Specification
+                    CLOSE DOSSIER
                   </button>
-
-                  <a
-                    href="#contact"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      closeProjectModal();
-                      const contact = document.querySelector("#contact");
-                      contact?.scrollIntoView({ behavior: "smooth" });
-                    }}
-                    className="flex-1 sm:flex-initial px-6 py-2.5 rounded-full bg-gradient-to-r from-[#B5121B] to-[#F06A28] text-white font-mono text-xs uppercase tracking-widest font-semibold flex items-center justify-center gap-2 hover:scale-105 transition-all shadow-[0_0_20px_rgba(181,18,27,0.4)]"
-                  >
-                    <span>Commission Project</span>
-                    <ArrowUpRight className="w-4 h-4" />
-                  </a>
-                </div>
+                )}
               </div>
             </motion.div>
           </div>
